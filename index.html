@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="uk" style="color-scheme: light only !important; background-color: #F4EEE4 !important;">
+<html lang="uk">
 
 <head>
     <meta charset="UTF-8">
@@ -13,25 +13,7 @@
     <meta name="darkreader-lock">
 
     <!-- INLINE CRITICAL CSS — parsed BEFORE external stylesheet -->
-    <style>
-        :root, html { color-scheme: light only !important; background-color: #F4EEE4 !important; }
-        body { background-color: #F4EEE4 !important; color: #2E2E26 !important; }
-        .envelope-screen,.countdown-section,.schedule-section,.dresscode-section,.rsvp-section { background-color: #F4EEE4 !important; }
-        .welcome-section,.venue-section,.gallery-section,.wishes-section,.final-section { background-color: #E7DDCD !important; }
-        .venue-card,.wish-item,.countdown-cell,.envelope-letter,.rsvp-ok,.tl-dot,.radio-box { background-color: #F4EEE4 !important; }
-        .tl-card { background-color: #E7DDCD !important; }
-        .btn-submit,.copy-toast { background-color: #404738 !important; color: #F4EEE4 !important; }
-        .field input,.field select,.field textarea { background-color: #E7DDCD !important; color: #2E2E26 !important; }
-        .dc-swatch:nth-child(1) { background-color: #E7DDCD !important; }
-        .dc-swatch:nth-child(2) { background-color: #CBB2A3 !important; }
-        .dc-swatch:nth-child(3) { background-color: #C9A38F !important; }
-        .dc-swatch:nth-child(4) { background-color: #B88F79 !important; }
-        .dc-swatch:nth-child(5) { background-color: #A7AF98 !important; }
-        .dc-swatch:nth-child(6) { background-color: #7D856B !important; }
-        .dc-swatch:nth-child(7) { background-color: #5D654F !important; }
-        .dc-swatch:nth-child(8) { background-color: #404738 !important; }
-        img,canvas,svg { filter: none !important; -webkit-filter: none !important; }
-    </style>
+    <!-- Inline critical CSS kept minimal -->
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -41,66 +23,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 
-<body style="background-color: #F4EEE4 !important; color: #2E2E26 !important;">
-
-    <!-- FORCE-LIGHT: runs IMMEDIATELY before any rendering -->
-    <script>
-    (function() {
-        var html = document.documentElement;
-        var body = document.body;
-        html.style.setProperty('background-color', '#F4EEE4', 'important');
-        html.style.setProperty('color-scheme', 'light only', 'important');
-        body.style.setProperty('background-color', '#F4EEE4', 'important');
-        body.style.setProperty('color', '#2E2E26', 'important');
-
-        var ivory = '#F4EEE4', beige = '#E7DDCD', forest = '#404738';
-        var swatchC = ['#E7DDCD','#CBB2A3','#C9A38F','#B88F79','#A7AF98','#7D856B','#5D654F','#404738'];
-
-        function fix() {
-            var sels = [
-                ['.envelope-screen,.countdown-section,.schedule-section,.dresscode-section,.rsvp-section,.venue-card,.wish-item,.countdown-cell,.envelope-letter,.rsvp-ok,.tl-dot,.radio-box', ivory],
-                ['.welcome-section,.venue-section,.gallery-section,.wishes-section,.final-section,.tl-card', beige],
-                ['.btn-submit,.copy-toast', forest]
-            ];
-            sels.forEach(function(p) {
-                try {
-                    document.querySelectorAll(p[0]).forEach(function(el) {
-                        el.style.setProperty('background-color', p[1], 'important');
-                        el.style.setProperty('background-image', 'linear-gradient(0deg,'+p[1]+','+p[1]+')', 'important');
-                    });
-                } catch(e) {}
-            });
-            document.querySelectorAll('.dc-swatch').forEach(function(sw, i) {
-                var c = swatchC[i] || sw.getAttribute('data-color');
-                if (c) {
-                    sw.style.setProperty('background-color', c, 'important');
-                    sw.style.setProperty('background-image', 'linear-gradient(0deg,'+c+','+c+')', 'important');
-                }
-            });
-            document.querySelectorAll('.field input,.field select,.field textarea').forEach(function(el) {
-                el.style.setProperty('background-color', beige, 'important');
-                el.style.setProperty('color', '#2E2E26', 'important');
-            });
-            document.querySelectorAll('img,canvas,svg').forEach(function(el) {
-                el.style.setProperty('filter', 'none', 'important');
-            });
-        }
-
-        fix();
-        document.addEventListener('DOMContentLoaded', fix);
-        window.addEventListener('load', fix);
-
-        // MutationObserver: re-apply if browser modifies styles
-        try {
-            var mo = new MutationObserver(function() { requestAnimationFrame(fix); });
-            mo.observe(html, { attributes: true, attributeFilter: ['style','class'], childList: true, subtree: true });
-        } catch(e) {}
-
-        // Periodic re-apply for first 5 seconds
-        var n = 0;
-        var iv = setInterval(function() { fix(); if (++n >= 10) clearInterval(iv); }, 500);
-    })();
-    </script>
+<body>
 
     <!-- Petals canvas — only on envelope screen -->
     <canvas id="petals-canvas" class="petals-canvas"></canvas>

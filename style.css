@@ -1,4 +1,4 @@
-/* ==============================================
+﻿/* ==============================================
    ROMAN & ELIZAVETA — WEDDING INVITATION
    ============================================== */
 
@@ -444,8 +444,8 @@ button {
     border-radius: 50%;
     position: absolute;
     left: 50%;
-    bottom: -50px;
-    transform: translateX(-50%);
+    top: 50%;
+    transform: translate(-50%, -50%);
     pointer-events: none;
     animation: envPulse 2.5s ease-in-out infinite;
 }
@@ -1755,540 +1755,286 @@ button {
     }
 }
 
-/* ═══════════════════════════════════════════════════════════
-   ANTI FORCE-DARK — background-image gradient trick
-   Android WebView / Samsung Internet / Telegram WebView
-   skip darkening elements that have background-image set.
-   A solid-color linear-gradient() counts as background-image.
-   ═══════════════════════════════════════════════════════════ */
-
-html {
-    background-image: linear-gradient(0deg, #F4EEE4, #F4EEE4);
-}
-
-/* Ivory-background elements */
-.envelope-screen,
-.envelope-letter,
-.countdown-section,
-.schedule-section,
-.dresscode-section,
-.rsvp-section,
-.venue-card,
-.wish-item,
-.countdown-cell,
-.tl-dot,
-.rsvp-ok,
-.radio-box {
-    background-image: linear-gradient(0deg, #F4EEE4, #F4EEE4) !important;
-}
-
-/* Beige-background elements */
-.welcome-section,
-.venue-section,
-.gallery-section,
-.wishes-section,
-.final-section,
-.tl-card,
-.field input,
-.field textarea,
-.guest-name-field input {
-    background-image: linear-gradient(0deg, #E7DDCD, #E7DDCD) !important;
-}
-
-/* Dark-background elements */
-.btn-submit,
-.copy-toast {
-    background-image: linear-gradient(0deg, #404738, #404738) !important;
-}
-
-/* Semi-transparent background elements */
-.music-btn,
-.volume-slider-wrap {
-    background-image: linear-gradient(0deg, rgba(231, 221, 205, .92), rgba(231, 221, 205, .92)) !important;
-}
-
-/* Envelope gradients already act as background-image, safe */
-/* Hero overlay already uses linear-gradient, safe */
-
-/* Dress code swatches — force via nth-child */
-.dc-swatch:nth-child(1) { background-image: linear-gradient(0deg, #E7DDCD, #E7DDCD) !important; }
-.dc-swatch:nth-child(2) { background-image: linear-gradient(0deg, #CBB2A3, #CBB2A3) !important; }
-.dc-swatch:nth-child(3) { background-image: linear-gradient(0deg, #C9A38F, #C9A38F) !important; }
-.dc-swatch:nth-child(4) { background-image: linear-gradient(0deg, #B88F79, #B88F79) !important; }
-.dc-swatch:nth-child(5) { background-image: linear-gradient(0deg, #A7AF98, #A7AF98) !important; }
-.dc-swatch:nth-child(6) { background-image: linear-gradient(0deg, #7D856B, #7D856B) !important; }
-.dc-swatch:nth-child(7) { background-image: linear-gradient(0deg, #5D654F, #5D654F) !important; }
-.dc-swatch:nth-child(8) { background-image: linear-gradient(0deg, #404738, #404738) !important; }
-
-/* Lightbox buttons */
-.lb-close,
-.lb-prev,
-.lb-next {
-    background-image: linear-gradient(0deg, rgba(244, 238, 228, .12), rgba(244, 238, 228, .12)) !important;
-}
-
-/* Prevent any filter/invert on images, canvas, SVGs */
-img,
-canvas,
-svg {
-    filter: none !important;
-    -webkit-filter: none !important;
-}
-
-/* Text color protection — hardcoded hex values
-   -webkit-text-fill-color is often ignored by force-dark */
-.section-label,
-.hero-initial,
-.hero-name-first,
-.hero-name-second,
-.hero-name-and,
-.hero-amp,
-.hero-subtitle,
-.hero-date-text {
-    -webkit-text-fill-color: #2C2F25;
-}
-
-.welcome-text p,
-.wish-item p,
-.dresscode-text,
-.rsvp-intro,
-.tl-card p,
-.venue-address {
-    -webkit-text-fill-color: #2E2E26;
-}
-
-.countdown-num,
-.venue-name,
-.tl-card h4,
-.final-names {
-    -webkit-text-fill-color: #2C2F25;
-}
-
-.countdown-word,
-.dresscode-copy-hint,
-.final-date,
-.final-copy {
-    -webkit-text-fill-color: #7A7768;
-}
-
-.tl-time,
-.welcome-greeting,
-.welcome-sign span,
-.rsvp-intro strong,
-.rsvp-ok h3,
-.final-script {
-    -webkit-text-fill-color: #404738;
-}
-
-.dresscode-note,
-.countdown-date {
-    -webkit-text-fill-color: #4A4840;
-}
-
-.btn-submit {
-    -webkit-text-fill-color: #F4EEE4;
-}
-
-.field label,
-.countdown-word {
-    -webkit-text-fill-color: #7A7768;
-}
-
-.field input,
-.field select,
-.field textarea {
-    -webkit-text-fill-color: #2E2E26;
-}
-
-/* btn-map hover state */
-.btn-map {
-    background-image: linear-gradient(0deg, transparent, transparent) !important;
-}
 
 /* ═══════════════════════════════════════════════════
-   FORCE LIGHT MODE — CSS fallback for browsers that
-   DO respect prefers-color-scheme media query
+   BEAUTIFUL DARK THEME
+   When the system is in dark mode, show an elegant
+   dark version of the invitation that force-dark
+   algorithms won't touch (it's already dark).
    ═══════════════════════════════════════════════════ */
-
-/* Prevent forced-colors / High Contrast overrides */
-*,
-*::before,
-*::after {
-    forced-color-adjust: none !important;
-    -webkit-forced-color-adjust: none !important;
-}
 
 @media (prefers-color-scheme: dark) {
 
-    /* ── Root variables — re-declare identically ── */
+    /* ── Dark palette via CSS variables ── */
     :root {
-        color-scheme: only light !important;
-        --ivory: #F4EEE4 !important;
-        --beige: #E7DDCD !important;
-        --beige-mid: #D9CCBA !important;
-        --nude: #CBB2A3 !important;
-        --taupe: #C9A38F !important;
-        --terracotta: #B88F79 !important;
-        --sage: #A7AF98 !important;
-        --olive: #7D856B !important;
-        --moss: #5D654F !important;
-        --forest: #404738 !important;
-        --dark: #2C2F25 !important;
-        --text: #2E2E26 !important;
-        --text-soft: #4A4840 !important;
-        --text-muted: #7A7768 !important;
+        --ivory: #1C1E19;
+        --beige: #25271F;
+        --beige-mid: #2E3028;
+        --dark: #E7DDCD;
+        --text: #D9CCBA;
+        --text-soft: #B5AFA3;
+        --text-muted: #8A8678;
+        color-scheme: dark;
     }
 
-    /* ── Global resets ── */
-    html {
-        color-scheme: only light !important;
-        background-color: #F4EEE4 !important;
+    /* ── Global ── */
+    html, body {
+        background-color: #1C1E19;
+        color: #D9CCBA;
     }
 
     body {
-        background-color: #F4EEE4 !important;
-        color: #2E2E26 !important;
+        background-image: none;
     }
 
-    /* ── Envelope ── */
-    .envelope-screen {
-        background-color: #F4EEE4 !important;
+    /* ── Sections: primary dark bg ── */
+    .envelope-screen,
+    .countdown-section,
+    .schedule-section,
+    .dresscode-section,
+    .rsvp-section {
+        background-color: #1C1E19;
     }
 
-    .envelope-back {
-        background: linear-gradient(165deg, #E8DFD1, #DDD2C0) !important;
+    /* ── Sections: secondary dark bg ── */
+    .welcome-section,
+    .venue-section,
+    .gallery-section,
+    .wishes-section,
+    .final-section {
+        background-color: #25271F;
     }
 
-    .envelope-flap::before {
-        background: linear-gradient(170deg, #E0D6C6, #D5C9B7) !important;
+    /* ── Cards & cells ── */
+    .venue-card,
+    .wish-item,
+    .countdown-cell,
+    .rsvp-ok,
+    .radio-box {
+        background-color: #25271F;
+        border-color: rgba(167, 175, 152, .15);
+    }
+
+    .tl-card {
+        background-color: #2E3028;
+        border-color: rgba(167, 175, 152, .12);
     }
 
     .envelope-letter {
-        background-color: #F4EEE4 !important;
+        background-color: #25271F;
+    }
+
+    .tl-dot {
+        background-color: #1C1E19;
+        border-color: #7D856B;
+    }
+
+    /* ── Envelope ── */
+    .envelope-back {
+        background: linear-gradient(165deg, #2E3028, #25271F);
+    }
+
+    .envelope-flap::before {
+        background: linear-gradient(170deg, #353830, #2E3028);
     }
 
     .seal-letter {
-        color: #2C2F25 !important;
+        color: #E7DDCD;
     }
 
     .seal-amp {
-        color: #7D856B !important;
+        color: #A7AF98;
+    }
+
+    .envelope-seal {
+        background: rgba(64, 71, 56, .4);
+        border-color: rgba(125, 133, 107, .3);
+    }
+
+    .envelope-ornament {
+        color: rgba(167, 175, 152, .35);
+    }
+
+    .envelope-pulse {
+        animation: envPulse 2.5s ease-in-out infinite;
+    }
+
+    .envelope-hint {
+        color: #8A8678;
     }
 
     /* ── Hero ── */
     .hero-overlay {
-        background: linear-gradient(180deg, rgba(244, 238, 228, .85) 0%, rgba(244, 238, 228, .68) 30%, rgba(244, 238, 228, .62) 55%, rgba(244, 238, 228, .78) 75%, rgba(244, 238, 228, .96) 100%) !important;
+        background: linear-gradient(180deg,
+            rgba(28, 30, 25, .92) 0%,
+            rgba(28, 30, 25, .78) 30%,
+            rgba(28, 30, 25, .72) 55%,
+            rgba(28, 30, 25, .85) 75%,
+            rgba(28, 30, 25, .98) 100%);
     }
 
-    .hero-initial {
-        color: #2C2F25 !important;
-    }
-
-    .hero-amp {
-        color: #7D856B !important;
-    }
-
+    .hero-initial { color: #E7DDCD; }
+    .hero-amp { color: #A7AF98; }
     .hero-name-first,
-    .hero-name-second {
-        color: #2C2F25 !important;
-    }
-
-    .hero-name-and {
-        color: #7D856B !important;
-    }
-
-    .hero-subtitle {
-        color: #4A4840 !important;
-    }
-
-    .hero-date-text {
-        color: #2C2F25 !important;
-    }
-
+    .hero-name-second { color: #E7DDCD; }
+    .hero-name-and { color: #A7AF98; }
+    .hero-subtitle { color: #B5AFA3; }
+    .hero-date-text { color: #E7DDCD; }
     .hero-line-deco {
-        background: linear-gradient(90deg, transparent, #7D856B, transparent) !important;
-    }
-
-    /* ── Welcome ── */
-    .welcome-section {
-        background-color: #E7DDCD !important;
-    }
-
-    .welcome-text p {
-        color: #2E2E26 !important;
-    }
-
-    .welcome-greeting {
-        color: #404738 !important;
-    }
-
-    .welcome-sign span {
-        color: #404738 !important;
-    }
-
-    /* ── Countdown ── */
-    .countdown-section {
-        background-color: #F4EEE4 !important;
-    }
-
-    .countdown-cell {
-        background-color: #E7DDCD !important;
-        border-color: rgba(167, 175, 152, .2) !important;
-    }
-
-    .countdown-num {
-        color: #2C2F25 !important;
-    }
-
-    .countdown-word {
-        color: #7A7768 !important;
-    }
-
-    .countdown-sep {
-        color: #7D856B !important;
-    }
-
-    .countdown-date {
-        color: #4A4840 !important;
+        background: linear-gradient(90deg, transparent, #7D856B, transparent);
     }
 
     /* ── Section labels ── */
-    .section-label {
-        color: #2C2F25 !important;
+    .section-label { color: #E7DDCD; }
+    .section-label::before,
+    .section-label::after {
+        background: linear-gradient(90deg, transparent, rgba(167,175,152,.3));
     }
+    .section-label::after {
+        background: linear-gradient(90deg, rgba(167,175,152,.3), transparent);
+    }
+
+    /* ── Welcome ── */
+    .welcome-text p { color: #D9CCBA; }
+    .welcome-greeting { color: #A7AF98; }
+    .welcome-sign span { color: #A7AF98; }
+
+    /* ── Countdown ── */
+    .countdown-num { color: #E7DDCD; }
+    .countdown-word { color: #8A8678; }
+    .countdown-sep { color: #7D856B; }
+    .countdown-date { color: #B5AFA3; }
 
     /* ── Venue ── */
-    .venue-section {
-        background-color: #E7DDCD !important;
-    }
-
-    .venue-card {
-        background-color: #F4EEE4 !important;
-    }
-
-    .venue-name {
-        color: #2C2F25 !important;
-    }
-
-    .venue-address {
-        color: #4A4840 !important;
-    }
-
+    .venue-name { color: #E7DDCD; }
+    .venue-address { color: #B5AFA3; }
     .btn-map {
-        color: #2C2F25 !important;
-        border-color: #7D856B !important;
+        color: #E7DDCD;
+        border-color: rgba(125, 133, 107, .4);
+    }
+    .btn-map:hover {
+        background-color: rgba(125, 133, 107, .15);
     }
 
-    /* ── Schedule / Timeline ── */
-    .schedule-section {
-        background-color: #F4EEE4 !important;
-    }
-
-    .tl-card {
-        background-color: #E7DDCD !important;
-    }
-
-    .tl-time {
-        color: #404738 !important;
-    }
-
-    .tl-icon {
-        color: #7D856B !important;
-    }
-
-    .tl-card h4 {
-        color: #2C2F25 !important;
-    }
-
-    .tl-card p {
-        color: #4A4840 !important;
-    }
-
-    .tl-dot {
-        background-color: #F4EEE4 !important;
-        border-color: #7D856B !important;
-    }
+    /* ── Schedule ── */
+    .tl-time { color: #A7AF98; }
+    .tl-icon { color: #7D856B; }
+    .tl-card h4 { color: #E7DDCD; }
+    .tl-card p { color: #B5AFA3; }
+    .tl-line { background-color: rgba(125, 133, 107, .3); }
 
     /* ── Gallery ── */
-    .gallery-section {
-        background-color: #E7DDCD !important;
-    }
-
     .lightbox {
-        background-color: rgba(30, 30, 26, .94) !important;
+        background-color: rgba(20, 22, 18, .96);
     }
 
-    /* ── DRESS CODE — the critical section ── */
-    .dresscode-section {
-        background-color: #F4EEE4 !important;
+    .gal-item {
+        border-color: rgba(125, 133, 107, .15);
     }
 
-    .dresscode-text {
-        color: #2E2E26 !important;
-    }
+    /* ── DRESS CODE — swatches keep their EXACT colors ── */
+    .dresscode-text { color: #D9CCBA; }
+    .dresscode-note { color: #B5AFA3; }
+    .dresscode-copy-hint { color: #8A8678; }
+
+    .dc-swatch:nth-child(1) { background-color: #E7DDCD; }
+    .dc-swatch:nth-child(2) { background-color: #CBB2A3; }
+    .dc-swatch:nth-child(3) { background-color: #C9A38F; }
+    .dc-swatch:nth-child(4) { background-color: #B88F79; }
+    .dc-swatch:nth-child(5) { background-color: #A7AF98; }
+    .dc-swatch:nth-child(6) { background-color: #7D856B; }
+    .dc-swatch:nth-child(7) { background-color: #5D654F; }
+    .dc-swatch:nth-child(8) { background-color: #404738; }
 
     .dc-swatch {
-        filter: none !important;
-        -webkit-filter: none !important;
-        mix-blend-mode: normal !important;
-        isolation: isolate !important;
-    }
-
-    /* Force each swatch color explicitly via nth-child */
-    .dc-swatch:nth-child(1) { background-color: #E7DDCD !important; }
-    .dc-swatch:nth-child(2) { background-color: #CBB2A3 !important; }
-    .dc-swatch:nth-child(3) { background-color: #C9A38F !important; }
-    .dc-swatch:nth-child(4) { background-color: #B88F79 !important; }
-    .dc-swatch:nth-child(5) { background-color: #A7AF98 !important; }
-    .dc-swatch:nth-child(6) { background-color: #7D856B !important; }
-    .dc-swatch:nth-child(7) { background-color: #5D654F !important; }
-    .dc-swatch:nth-child(8) { background-color: #404738 !important; }
-
-    .dresscode-note {
-        color: #4A4840 !important;
-    }
-
-    .dresscode-copy-hint {
-        color: #7A7768 !important;
+        border: 1px solid rgba(167, 175, 152, .2);
     }
 
     /* ── Wishes ── */
-    .wishes-section {
-        background-color: #E7DDCD !important;
-    }
-
-    .wish-item {
-        background-color: #F4EEE4 !important;
-    }
-
-    .wish-icon {
-        color: #7D856B !important;
-    }
-
-    .wish-item p {
-        color: #2E2E26 !important;
-    }
+    .wish-icon { color: #7D856B; }
+    .wish-item p { color: #D9CCBA; }
 
     /* ── RSVP ── */
-    .rsvp-section {
-        background-color: #F4EEE4 !important;
-    }
+    .rsvp-intro { color: #B5AFA3; }
+    .rsvp-intro strong { color: #A7AF98; }
 
-    .rsvp-intro {
-        color: #4A4840 !important;
-    }
-
-    .rsvp-intro strong {
-        color: #404738 !important;
-    }
-
-    .field label {
-        color: #7A7768 !important;
-    }
+    .field label { color: #8A8678; }
 
     .field input,
     .field select,
     .field textarea {
-        background-color: #E7DDCD !important;
-        color: #2E2E26 !important;
-        border-color: rgba(167, 175, 152, .25) !important;
+        background-color: #2E3028;
+        color: #D9CCBA;
+        border-color: rgba(125, 133, 107, .25);
     }
 
     .field input::placeholder,
     .field textarea::placeholder {
-        color: #7A7768 !important;
+        color: #6A6758;
     }
 
-    .radio-opt span:last-child {
-        color: #2E2E26 !important;
+    .field select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23A7AF98' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
     }
+
+    .radio-opt span:last-child { color: #D9CCBA; }
 
     .radio-box {
-        border-color: #7D856B !important;
+        border-color: rgba(125, 133, 107, .4);
+        background-color: #25271F;
     }
 
     .radio-box::after {
-        background-color: #404738 !important;
+        background-color: #A7AF98;
     }
 
-    .guest-name-field label {
-        color: #7A7768 !important;
-    }
-
+    .guest-name-field label { color: #8A8678; }
     .guest-name-field input {
-        background-color: #E7DDCD !important;
-        color: #2E2E26 !important;
+        background-color: #2E3028;
+        color: #D9CCBA;
     }
 
     .btn-submit {
-        background-color: #404738 !important;
-        color: #F4EEE4 !important;
+        background-color: #7D856B;
+        color: #1C1E19;
     }
 
-    .rsvp-ok h3 {
-        color: #404738 !important;
+    .btn-submit:hover {
+        background-color: #A7AF98;
     }
 
-    .rsvp-ok p {
-        color: #4A4840 !important;
-    }
+    .rsvp-ok h3 { color: #A7AF98; }
+    .rsvp-ok p { color: #B5AFA3; }
 
-    /* ── Final / Footer ── */
-    .final-section {
-        background-color: #E7DDCD !important;
-    }
+    /* ── Final ── */
+    .final-script { color: #A7AF98; }
+    .final-names { color: #E7DDCD; }
+    .final-date { color: #8A8678; }
+    .final-copy { color: #8A8678; }
 
-    .final-script {
-        color: #7D856B !important;
-    }
-
-    .final-names {
-        color: #2C2F25 !important;
-    }
-
-    .final-date {
-        color: #7A7768 !important;
-    }
-
-    .final-copy {
-        color: #7A7768 !important;
-    }
-
-    /* ── Music panel ── */
+    /* ── Music ── */
     .music-btn {
-        background-color: rgba(231, 221, 205, .92) !important;
-        color: #404738 !important;
+        background-color: rgba(46, 48, 40, .92);
+        color: #E7DDCD;
     }
 
     .volume-slider-wrap {
-        background-color: rgba(231, 221, 205, .92) !important;
+        background-color: rgba(46, 48, 40, .92);
     }
 
     /* ── Copy toast ── */
     .copy-toast {
-        background-color: #404738 !important;
-        color: #F4EEE4 !important;
+        background-color: #7D856B;
+        color: #1C1E19;
     }
 
-    /* ── SVG strokes inside ornaments ── */
-    svg path,
-    svg circle,
-    svg line,
-    svg polyline,
-    svg rect {
-        filter: none !important;
-        -webkit-filter: none !important;
-    }
+    /* ── Sparkle canvas ── */
+    .sparkle-canvas { opacity: 0.6; }
 
-    /* ── Images — prevent inversion ── */
-    img {
-        filter: none !important;
-        -webkit-filter: none !important;
-    }
-
-    /* ── Canvas — prevent inversion ── */
-    canvas {
-        filter: none !important;
-        -webkit-filter: none !important;
+    /* ── Images / Canvas — keep natural ── */
+    img { filter: none; -webkit-filter: none; }
+    canvas { filter: none; -webkit-filter: none; }
+    svg path, svg circle, svg line, svg polyline, svg rect {
+        filter: none; -webkit-filter: none;
     }
 }
