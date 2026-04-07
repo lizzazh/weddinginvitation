@@ -5,14 +5,13 @@ export async function onRequestPost(context) {
 
         const {
             fullName = "",
-            phoneNumber = "",
             attendance = "",
             guests = "",
             transfer = "",
             comment = ""
         } = body;
 
-        if (!fullName.trim() || !phoneNumber.trim() || !attendance.trim()) {
+        if (!fullName.trim() || !attendance.trim()) {
             return new Response(
                 JSON.stringify({
                     success: false,
@@ -30,8 +29,7 @@ export async function onRequestPost(context) {
         const telegramMessage = [
             "💍 Нова відповідь на весільне запрошення",
             "",
-            `👤 Ім’я: ${fullName}`,
-            `📞 Телефон: ${phoneNumber}`,
+            `👤 Ім'я: ${fullName}`,
             `✅ Присутність: ${attendance}`,
             `👥 Хто буде разом: ${guests || "—"}`,
             `🚗 Трансфер: ${transfer || "—"}`,

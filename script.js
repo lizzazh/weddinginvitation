@@ -296,7 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 img.src = src; img.alt = `Фото ${i}`; img.loading = 'lazy';
                 div.appendChild(img); galGrid.appendChild(div);
                 div.addEventListener('click', () => openLB(parseInt(div.dataset.index)));
-            } catch { break }
+            } catch { continue }
         }
         if (!galSrcs.length) {
             galGrid.innerHTML = '<p style="text-align:center;color:#7A7768;font-style:italic;padding:40px 0">Фото будуть додані пізніше...</p>';
@@ -371,7 +371,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const payload = {
             fullName: fd.get('name') || '',
-            phoneNumber: fd.get('phone') || '',
             attendance: attendance,
             guests: guestsStr,
             transfer: transferVal,
