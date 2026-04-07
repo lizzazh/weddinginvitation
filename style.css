@@ -1,4 +1,4 @@
-﻿/* ==============================================
+/* ==============================================
    ROMAN & ELIZAVETA — WEDDING INVITATION
    ============================================== */
 
@@ -916,6 +916,61 @@ button {
 .gallery-masonry {
     column-count: 3;
     column-gap: 12px;
+    transition: max-height .6s ease;
+}
+
+.gallery-masonry.gallery-collapsed {
+    max-height: 420px;
+    overflow: hidden;
+    position: relative;
+}
+
+.gallery-masonry.gallery-collapsed::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 120px;
+    background: linear-gradient(transparent, var(--beige, #E7DDCD));
+    pointer-events: none;
+    z-index: 1;
+}
+
+.gallery-expand-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 24px auto 0;
+    padding: 12px 32px;
+    background: none;
+    border: 1.5px solid var(--text-muted, #7A7768);
+    border-radius: 30px;
+    color: var(--text-soft, #4A4840);
+    font-family: 'Jost', sans-serif;
+    font-size: .88rem;
+    font-weight: 400;
+    letter-spacing: .06em;
+    cursor: pointer;
+    transition: all .35s ease;
+}
+
+.gallery-expand-btn:hover {
+    background-color: rgba(125, 133, 107, .1);
+    border-color: var(--text-soft, #4A4840);
+}
+
+.gallery-expand-btn svg {
+    transition: transform .3s ease;
+}
+
+.gallery-expand-btn.is-expanded svg {
+    transform: rotate(180deg);
+}
+
+.gallery-expand-btn.is-hidden {
+    display: none;
 }
 
 .gal-item {
