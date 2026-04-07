@@ -1753,3 +1753,391 @@ button {
         font-size: 1.7rem
     }
 }
+
+/* ═══════════════════════════════════════════════════
+   FORCE LIGHT MODE — Override browser auto-darkening
+   (Telegram WebView, Samsung Internet, Safari dark, etc.)
+   ═══════════════════════════════════════════════════ */
+
+/* Prevent forced-colors / High Contrast overrides */
+*,
+*::before,
+*::after {
+    forced-color-adjust: none !important;
+    -webkit-forced-color-adjust: none !important;
+}
+
+@media (prefers-color-scheme: dark) {
+
+    /* ── Root variables — re-declare identically ── */
+    :root {
+        color-scheme: only light !important;
+        --ivory: #F4EEE4 !important;
+        --beige: #E7DDCD !important;
+        --beige-mid: #D9CCBA !important;
+        --nude: #CBB2A3 !important;
+        --taupe: #C9A38F !important;
+        --terracotta: #B88F79 !important;
+        --sage: #A7AF98 !important;
+        --olive: #7D856B !important;
+        --moss: #5D654F !important;
+        --forest: #404738 !important;
+        --dark: #2C2F25 !important;
+        --text: #2E2E26 !important;
+        --text-soft: #4A4840 !important;
+        --text-muted: #7A7768 !important;
+    }
+
+    /* ── Global resets ── */
+    html {
+        color-scheme: only light !important;
+        background-color: #F4EEE4 !important;
+    }
+
+    body {
+        background-color: #F4EEE4 !important;
+        color: #2E2E26 !important;
+    }
+
+    /* ── Envelope ── */
+    .envelope-screen {
+        background-color: #F4EEE4 !important;
+    }
+
+    .envelope-back {
+        background: linear-gradient(165deg, #E8DFD1, #DDD2C0) !important;
+    }
+
+    .envelope-flap::before {
+        background: linear-gradient(170deg, #E0D6C6, #D5C9B7) !important;
+    }
+
+    .envelope-letter {
+        background-color: #F4EEE4 !important;
+    }
+
+    .seal-letter {
+        color: #2C2F25 !important;
+    }
+
+    .seal-amp {
+        color: #7D856B !important;
+    }
+
+    /* ── Hero ── */
+    .hero-overlay {
+        background: linear-gradient(180deg, rgba(244, 238, 228, .85) 0%, rgba(244, 238, 228, .68) 30%, rgba(244, 238, 228, .62) 55%, rgba(244, 238, 228, .78) 75%, rgba(244, 238, 228, .96) 100%) !important;
+    }
+
+    .hero-initial {
+        color: #2C2F25 !important;
+    }
+
+    .hero-amp {
+        color: #7D856B !important;
+    }
+
+    .hero-name-first,
+    .hero-name-second {
+        color: #2C2F25 !important;
+    }
+
+    .hero-name-and {
+        color: #7D856B !important;
+    }
+
+    .hero-subtitle {
+        color: #4A4840 !important;
+    }
+
+    .hero-date-text {
+        color: #2C2F25 !important;
+    }
+
+    .hero-line-deco {
+        background: linear-gradient(90deg, transparent, #7D856B, transparent) !important;
+    }
+
+    /* ── Welcome ── */
+    .welcome-section {
+        background-color: #E7DDCD !important;
+    }
+
+    .welcome-text p {
+        color: #2E2E26 !important;
+    }
+
+    .welcome-greeting {
+        color: #404738 !important;
+    }
+
+    .welcome-sign span {
+        color: #404738 !important;
+    }
+
+    /* ── Countdown ── */
+    .countdown-section {
+        background-color: #F4EEE4 !important;
+    }
+
+    .countdown-cell {
+        background-color: #E7DDCD !important;
+        border-color: rgba(167, 175, 152, .2) !important;
+    }
+
+    .countdown-num {
+        color: #2C2F25 !important;
+    }
+
+    .countdown-word {
+        color: #7A7768 !important;
+    }
+
+    .countdown-sep {
+        color: #7D856B !important;
+    }
+
+    .countdown-date {
+        color: #4A4840 !important;
+    }
+
+    /* ── Section labels ── */
+    .section-label {
+        color: #2C2F25 !important;
+    }
+
+    /* ── Venue ── */
+    .venue-section {
+        background-color: #E7DDCD !important;
+    }
+
+    .venue-card {
+        background-color: #F4EEE4 !important;
+    }
+
+    .venue-name {
+        color: #2C2F25 !important;
+    }
+
+    .venue-address {
+        color: #4A4840 !important;
+    }
+
+    .btn-map {
+        color: #2C2F25 !important;
+        border-color: #7D856B !important;
+    }
+
+    /* ── Schedule / Timeline ── */
+    .schedule-section {
+        background-color: #F4EEE4 !important;
+    }
+
+    .tl-card {
+        background-color: #E7DDCD !important;
+    }
+
+    .tl-time {
+        color: #404738 !important;
+    }
+
+    .tl-icon {
+        color: #7D856B !important;
+    }
+
+    .tl-card h4 {
+        color: #2C2F25 !important;
+    }
+
+    .tl-card p {
+        color: #4A4840 !important;
+    }
+
+    .tl-dot {
+        background-color: #F4EEE4 !important;
+        border-color: #7D856B !important;
+    }
+
+    /* ── Gallery ── */
+    .gallery-section {
+        background-color: #E7DDCD !important;
+    }
+
+    .lightbox {
+        background-color: rgba(30, 30, 26, .94) !important;
+    }
+
+    /* ── DRESS CODE — the critical section ── */
+    .dresscode-section {
+        background-color: #F4EEE4 !important;
+    }
+
+    .dresscode-text {
+        color: #2E2E26 !important;
+    }
+
+    .dc-swatch {
+        filter: none !important;
+        -webkit-filter: none !important;
+        mix-blend-mode: normal !important;
+        isolation: isolate !important;
+    }
+
+    /* Force each swatch color explicitly via nth-child */
+    .dc-swatch:nth-child(1) { background-color: #E7DDCD !important; }
+    .dc-swatch:nth-child(2) { background-color: #CBB2A3 !important; }
+    .dc-swatch:nth-child(3) { background-color: #C9A38F !important; }
+    .dc-swatch:nth-child(4) { background-color: #B88F79 !important; }
+    .dc-swatch:nth-child(5) { background-color: #A7AF98 !important; }
+    .dc-swatch:nth-child(6) { background-color: #7D856B !important; }
+    .dc-swatch:nth-child(7) { background-color: #5D654F !important; }
+    .dc-swatch:nth-child(8) { background-color: #404738 !important; }
+
+    .dresscode-note {
+        color: #4A4840 !important;
+    }
+
+    .dresscode-copy-hint {
+        color: #7A7768 !important;
+    }
+
+    /* ── Wishes ── */
+    .wishes-section {
+        background-color: #E7DDCD !important;
+    }
+
+    .wish-item {
+        background-color: #F4EEE4 !important;
+    }
+
+    .wish-icon {
+        color: #7D856B !important;
+    }
+
+    .wish-item p {
+        color: #2E2E26 !important;
+    }
+
+    /* ── RSVP ── */
+    .rsvp-section {
+        background-color: #F4EEE4 !important;
+    }
+
+    .rsvp-intro {
+        color: #4A4840 !important;
+    }
+
+    .rsvp-intro strong {
+        color: #404738 !important;
+    }
+
+    .field label {
+        color: #7A7768 !important;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+        background-color: #E7DDCD !important;
+        color: #2E2E26 !important;
+        border-color: rgba(167, 175, 152, .25) !important;
+    }
+
+    .field input::placeholder,
+    .field textarea::placeholder {
+        color: #7A7768 !important;
+    }
+
+    .radio-opt span:last-child {
+        color: #2E2E26 !important;
+    }
+
+    .radio-box {
+        border-color: #7D856B !important;
+    }
+
+    .radio-box::after {
+        background-color: #404738 !important;
+    }
+
+    .guest-name-field label {
+        color: #7A7768 !important;
+    }
+
+    .guest-name-field input {
+        background-color: #E7DDCD !important;
+        color: #2E2E26 !important;
+    }
+
+    .btn-submit {
+        background-color: #404738 !important;
+        color: #F4EEE4 !important;
+    }
+
+    .rsvp-ok h3 {
+        color: #404738 !important;
+    }
+
+    .rsvp-ok p {
+        color: #4A4840 !important;
+    }
+
+    /* ── Final / Footer ── */
+    .final-section {
+        background-color: #E7DDCD !important;
+    }
+
+    .final-script {
+        color: #7D856B !important;
+    }
+
+    .final-names {
+        color: #2C2F25 !important;
+    }
+
+    .final-date {
+        color: #7A7768 !important;
+    }
+
+    .final-copy {
+        color: #7A7768 !important;
+    }
+
+    /* ── Music panel ── */
+    .music-btn {
+        background-color: rgba(231, 221, 205, .92) !important;
+        color: #404738 !important;
+    }
+
+    .volume-slider-wrap {
+        background-color: rgba(231, 221, 205, .92) !important;
+    }
+
+    /* ── Copy toast ── */
+    .copy-toast {
+        background-color: #404738 !important;
+        color: #F4EEE4 !important;
+    }
+
+    /* ── SVG strokes inside ornaments ── */
+    svg path,
+    svg circle,
+    svg line,
+    svg polyline,
+    svg rect {
+        filter: none !important;
+        -webkit-filter: none !important;
+    }
+
+    /* ── Images — prevent inversion ── */
+    img {
+        filter: none !important;
+        -webkit-filter: none !important;
+    }
+
+    /* ── Canvas — prevent inversion ── */
+    canvas {
+        filter: none !important;
+        -webkit-filter: none !important;
+    }
+}
