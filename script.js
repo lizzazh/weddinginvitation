@@ -378,7 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         try {
-            const res = await fetch('/api/rsvp', {
+            const res = await fetch('https://wedding-rsvp.liza-zhizhikinadt.workers.dev/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
