@@ -1,4 +1,4 @@
-﻿/* ==============================================
+/* ==============================================
    ROMAN & ELIZAVETA — WEDDING INVITATION
    ============================================== */
 
@@ -916,18 +916,20 @@ button {
 .gallery-masonry {
     column-count: 3;
     column-gap: 12px;
-    max-height: 4000px;
-    overflow: hidden;
-    transition: max-height 1.2s ease-in-out;
 }
 
-.gallery-masonry.gallery-collapsed {
-    max-height: 420px;
+.gallery-wrapper {
+    transition: max-height 1.2s ease-in-out;
+    max-height: 15000px;
     overflow: hidden;
     position: relative;
 }
 
-.gallery-masonry.gallery-collapsed::after {
+.gallery-wrapper.gallery-collapsed {
+    max-height: 420px;
+}
+
+.gallery-wrapper.gallery-collapsed::after {
     content: '';
     position: absolute;
     bottom: 0;

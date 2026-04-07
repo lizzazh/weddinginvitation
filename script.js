@@ -317,15 +317,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     loadGallery().then(() => {
         const expandBtn = document.getElementById('gallery-expand-btn');
-        if (expandBtn) {
+        const wrapper = document.getElementById('gallery-wrapper');
+        if (expandBtn && wrapper) {
             setTimeout(() => {
                 // If gallery is short enough intrinsically, hide the button and remove collapsed state
-                if (galGrid.scrollHeight <= 450) {
+                if (wrapper.scrollHeight <= 450) {
                     expandBtn.style.display = 'none';
-                    galGrid.classList.remove('gallery-collapsed');
+                    wrapper.classList.remove('gallery-collapsed');
                 } else {
                     expandBtn.addEventListener('click', () => {
-                        const isExpanded = !galGrid.classList.toggle('gallery-collapsed');
+                        const isExpanded = !wrapper.classList.toggle('gallery-collapsed');
                         if (isExpanded) {
                             expandBtn.classList.add('is-expanded');
                             expandBtn.querySelector('.gallery-expand-text').textContent = 'Згорнути';
