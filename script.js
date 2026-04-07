@@ -1,4 +1,4 @@
-﻿/* ==============================================
+/* ==============================================
    ROMAN & ELIZAVETA — WEDDING INVITATION
    ============================================== */
 
@@ -302,7 +302,30 @@ document.addEventListener('DOMContentLoaded', () => {
             galGrid.innerHTML = '<p style="text-align:center;color:#7A7768;font-style:italic;padding:40px 0">Фото будуть додані пізніше...</p>';
         }
     }
-    loadGallery();
+    loadGallery().then(() => {
+        const expandBtn = document.getElementById('gallery-expand-btn');
+        if (expandBtn) {
+            setTimeout(() => {
+                // If gallery is short enough intrinsically, hide the button and remove collapsed state
+                if (galGrid.scrollHeight <= 450) {
+                    expandBtn.style.display = 'none';
+                    galGrid.classList.remove('gallery-collapsed');
+                } else {
+                    expandBtn.addEventListener('click', () => {
+                        const isExpanded = !galGrid.classList.toggle('gallery-collapsed');
+                        if (isExpanded) {
+                            expandBtn.classList.add('is-expanded');
+                            expandBtn.querySelector('.gallery-expand-text').textContent = 'Згорнути';
+                        } else {
+                            expandBtn.classList.remove('is-expanded');
+                            expandBtn.querySelector('.gallery-expand-text').textContent = 'Розгорнути';
+                            document.getElementById('gallery').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    });
+                }
+            }, 300); // Give layout a moment to calculate correctly
+        }
+    });
 
     /* ═══════ LIGHTBOX ═══════ */
     const lb = document.getElementById('lightbox'), lbImg = document.getElementById('lb-img'), lbCnt = document.getElementById('lb-counter');

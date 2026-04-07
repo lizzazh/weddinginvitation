@@ -916,7 +916,9 @@ button {
 .gallery-masonry {
     column-count: 3;
     column-gap: 12px;
-    transition: max-height .6s ease;
+    max-height: 4000px;
+    overflow: hidden;
+    transition: max-height 1.2s ease-in-out;
 }
 
 .gallery-masonry.gallery-collapsed {
