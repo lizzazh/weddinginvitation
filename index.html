@@ -20,10 +20,30 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Jost:wght@200;300;400;500&family=Great+Vibes&family=Pinyon+Script&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="style.css?v=6">
 </head>
 
 <body>
+
+    <!-- Samsung Internet dark mode warning -->
+    <div id="samsung-warning"
+        style="display:none;position:fixed;top:0;left:0;right:0;z-index:99999;padding:14px 44px 14px 16px;background:linear-gradient(135deg,#3a3d32,#2c2f25);color:#E7DDCD;text-align:center;font-family:'Jost',sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 12px rgba(0,0,0,.3);-webkit-text-fill-color:#E7DDCD;">
+        Для найкращого вигляду сайту рекомендуємо вимкнути темну тему для вебсторінок:<br>
+        <strong style="color:#A7AF98;-webkit-text-fill-color:#A7AF98;">Samsung Internet → ⁝ → Налаштування → Зовнішній
+            вигляд → «Темна тема для вебсторінок» → Вимкнути</strong>
+        <span id="samsung-warning-close"
+            style="position:absolute;top:8px;right:12px;cursor:pointer;font-size:20px;color:#8A8678;-webkit-text-fill-color:#8A8678;padding:4px;">✕</span>
+    </div>
+    <script>
+        (function () {
+            if (/SamsungBrowser/i.test(navigator.userAgent)) {
+                var w = document.getElementById('samsung-warning');
+                if (w) { w.style.display = 'block'; }
+                var c = document.getElementById('samsung-warning-close');
+                if (c) { c.addEventListener('click', function () { w.style.display = 'none'; }); }
+            }
+        })();
+    </script>
 
     <!-- Petals canvas — only on envelope screen -->
     <canvas id="petals-canvas" class="petals-canvas"></canvas>
@@ -341,16 +361,30 @@
                 <p class="dresscode-text" data-anim="fade-up">Будемо вдячні, якщо ваш образ буде відповідати кольоровій
                     палітрі нашого свята</p>
                 <div class="dresscode-palette" data-anim="fade-up" data-delay="100">
-                    <div class="dc-swatch" style="background:#E7DDCD" data-color="#E7DDCD" data-label="Беж"></div>
-                    <div class="dc-swatch" style="background:#CBB2A3" data-color="#CBB2A3" data-label="Нюд"></div>
-                    <div class="dc-swatch" style="background:#C9A38F" data-color="#C9A38F" data-label="Тауп"></div>
-                    <div class="dc-swatch" style="background:#B88F79" data-color="#B88F79" data-label="Терракота"></div>
-                    <div class="dc-swatch" style="background:#A7AF98" data-color="#A7AF98" data-label="Шавлія"></div>
-                    <div class="dc-swatch" style="background:#7D856B" data-color="#7D856B" data-label="Олива"></div>
-                    <div class="dc-swatch" style="background:#5D654F" data-color="#5D654F" data-label="Темний мох">
-                    </div>
-                    <div class="dc-swatch" style="background:#404738" data-color="#404738" data-label="Глибокий ліс">
-                    </div>
+                    <svg class="dc-swatch" viewBox="0 0 1 1" data-color="#E7DDCD" data-label="Беж">
+                        <rect width="1" height="1" fill="#E7DDCD" />
+                    </svg>
+                    <svg class="dc-swatch" viewBox="0 0 1 1" data-color="#CBB2A3" data-label="Нюд">
+                        <rect width="1" height="1" fill="#CBB2A3" />
+                    </svg>
+                    <svg class="dc-swatch" viewBox="0 0 1 1" data-color="#C9A38F" data-label="Тауп">
+                        <rect width="1" height="1" fill="#C9A38F" />
+                    </svg>
+                    <svg class="dc-swatch" viewBox="0 0 1 1" data-color="#B88F79" data-label="Терракота">
+                        <rect width="1" height="1" fill="#B88F79" />
+                    </svg>
+                    <svg class="dc-swatch" viewBox="0 0 1 1" data-color="#A7AF98" data-label="Шавлія">
+                        <rect width="1" height="1" fill="#A7AF98" />
+                    </svg>
+                    <svg class="dc-swatch" viewBox="0 0 1 1" data-color="#7D856B" data-label="Олива">
+                        <rect width="1" height="1" fill="#7D856B" />
+                    </svg>
+                    <svg class="dc-swatch" viewBox="0 0 1 1" data-color="#5D654F" data-label="Темний мох">
+                        <rect width="1" height="1" fill="#5D654F" />
+                    </svg>
+                    <svg class="dc-swatch" viewBox="0 0 1 1" data-color="#404738" data-label="Глибокий ліс">
+                        <rect width="1" height="1" fill="#404738" />
+                    </svg>
                 </div>
                 <p class="dresscode-note" data-anim="fade" data-delay="200">Просимо уникати білого кольору — він
                     зарезервований для нареченої&nbsp;🤍</p>

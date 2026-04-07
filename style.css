@@ -1065,6 +1065,7 @@ button {
     transition: all .35s var(--ease);
     position: relative;
     box-shadow: 0 2px 8px rgba(64, 71, 56, .08);
+    overflow: visible;
 }
 
 .dc-swatch:hover {
