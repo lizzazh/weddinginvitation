@@ -387,6 +387,10 @@
                         <input type="text" id="f-name" name="name" placeholder="Ваше ім'я" required>
                     </div>
                     <div class="field">
+                        <label for="f-phone">Номер телефону</label>
+                        <input type="tel" id="f-phone" name="phone" placeholder="+380" required>
+                    </div>
+                    <div class="field">
                         <label>Чи зможете бути присутніми?</label>
                         <div class="radio-row">
                             <label class="radio-opt"><input type="radio" name="attend" value="yes" required><span
@@ -429,6 +433,15 @@
                         </svg></div>
                     <h3>Дякуємо!</h3>
                     <p>Ваша відповідь надіслана. Ми з нетерпінням чекаємо зустрічі!</p>
+                </div>
+                <div class="rsvp-error" id="rsvp-error">
+                    <div class="error-icon"><svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#B88F79"
+                            stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="12" y1="8" x2="12" y2="12" />
+                            <line x1="12" y1="16" x2="12.01" y2="16" />
+                        </svg></div>
+                    <p>На жаль, щось пішло не так. Спробуйте ще раз.</p>
                 </div>
             </div>
         </section>
@@ -475,7 +488,7 @@
         </div>
     </div>
 
-    <script src="config.js"></script>
+
     <script src="script.js"></script>
 </body>
 

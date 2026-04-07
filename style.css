@@ -1420,6 +1420,39 @@ button {
     line-height: 1.7
 }
 
+.rsvp-error {
+    text-align: center;
+    padding: 20px;
+    display: none;
+    animation: fadeInError .5s var(--ease)
+}
+
+.rsvp-error.is-show {
+    display: block
+}
+
+@keyframes fadeInError {
+    from {
+        opacity: 0;
+        transform: translateY(8px)
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0)
+    }
+}
+
+.error-icon {
+    margin-bottom: 12px
+}
+
+.rsvp-error p {
+    font-size: .92rem;
+    color: var(--terracotta);
+    line-height: 1.6
+}
+
 /* ── FINAL ── */
 .final-section {
     background: var(--beige);

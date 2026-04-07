@@ -6,8 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
     'use strict';
 
     /* ═══════ CONFIG ═══════ */
-    const TELEGRAM_BOT_TOKEN = CONFIG.TELEGRAM_BOT_TOKEN;
-    const TELEGRAM_CHAT_ID = CONFIG.TELEGRAM_CHAT_ID;
     const WEDDING_DATE = new Date('2026-08-08T16:00:00+03:00').getTime();
     const MAX_GALLERY = 50;
     const IMG_EXT = ['jpg', 'jpeg', 'png', 'webp'];
@@ -353,50 +351,52 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     guestSel.addEventListener('change', updateGuestFields);
 
-    /* ═══════ RSVP + TELEGRAM ═══════ */
-    const rsvpForm = document.getElementById('rsvp-form'), rsvpOk = document.getElementById('rsvp-ok');
-
-    async function sendTelegram(data) {
-        const attend = data.attend === 'yes' ? '✅ Із радістю буду' : '❌ На жаль, ні';
-        const transfer = data.transfer === 'yes' ? '🚗 Так, потрібен' : '🚶 Ні, самостійно';
-        let guestList = '';
-        if (data.guestNames.length) {
-            guestList = '\n👥 Хто буде разом: ' + data.guestNames.join(', ');
-        }
-        const msg = [
-            '🔔 Нова відповідь на весільне запрошення',
-            '',
-            '👤 Ім\'я: ' + data.name,
-            '🎉 Присутність: ' + attend,
-            '🧑‍🤝‍🧑 Кількість гостей: ' + (data.guests === '0' ? 'Тільки я' : '+' + data.guests),
-            guestList,
-            '🚌 Трансфер: ' + transfer,
-            '💬 Коментар: ' + (data.comment || '—'),
-        ].filter(Boolean).join('\n');
-
-        try {
-            const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: msg })
-            });
-            const r = await res.json();
-            if (!r.ok) console.error('TG error:', r);
-            return r.ok;
-        } catch (e) { console.error('TG fetch error:', e); return false }
-    }
+    /* ═══════ RSVP ═══════ */
+    const rsvpForm = document.getElementById('rsvp-form'), rsvpOk = document.getElementById('rsvp-ok'), rsvpErr = document.getElementById('rsvp-error');
 
     rsvpForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const btn = document.getElementById('btn-submit');
         btn.innerHTML = '<span>Надсилаємо...</span>'; btn.disabled = true;
+        rsvpErr.classList.remove('is-show');
+
         const fd = new FormData(rsvpForm);
         const gc = parseInt(fd.get('guests') || '0', 10);
         const gn = [];
         for (let i = 1; i <= gc; i++) { const n = fd.get(`guest_name_${i}`); if (n && n.trim()) gn.push(n.trim()) }
-        const data = { name: fd.get('name') || '', attend: fd.get('attend') || '', guests: fd.get('guests') || '0', guestNames: gn, transfer: fd.get('transfer') || '', comment: fd.get('comment') || '' };
-        await sendTelegram(data);
-        rsvpForm.style.display = 'none';
-        rsvpOk.classList.add('is-show');
+
+        const attendance = fd.get('attend') === 'yes' ? 'Так, з радістю!' : 'На жаль, ні';
+        const transferVal = fd.get('transfer') === 'yes' ? 'Так, потрібен' : 'Ні, самостійно';
+        const guestsStr = gc === 0 ? 'Тільки я' : '+' + gc + (gn.length ? ' (' + gn.join(', ') + ')' : '');
+
+        const payload = {
+            fullName: fd.get('name') || '',
+            phoneNumber: fd.get('phone') || '',
+            attendance: attendance,
+            guests: guestsStr,
+            transfer: transferVal,
+            comment: fd.get('comment') || ''
+        };
+
+        try {
+            const res = await fetch('/api/rsvp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const result = await res.json();
+            if (result.success) {
+                rsvpForm.style.display = 'none';
+                rsvpOk.classList.add('is-show');
+            } else {
+                btn.innerHTML = '<span>Надіслати відповідь</span>'; btn.disabled = false;
+                rsvpErr.classList.add('is-show');
+            }
+        } catch (err) {
+            console.error('RSVP error:', err);
+            btn.innerHTML = '<span>Надіслати відповідь</span>'; btn.disabled = false;
+            rsvpErr.classList.add('is-show');
+        }
     });
 
     /* ═══════ PARALLAX ═══════ */
