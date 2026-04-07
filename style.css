@@ -2204,11 +2204,7 @@ body {
 }
 
 img,
-canvas,
-svg,
-svg path,
-svg circle,
-svg line {
+canvas {
     filter: none !important;
     -webkit-filter: none !important;
 }
