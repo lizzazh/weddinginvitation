@@ -2045,47 +2045,40 @@ body {
 }
 
 .dc-swatch {
-    border: 1px solid rgba(167, 175, 152, .25) !important;
+    background: transparent !important;
+    border: none !important;
 }
 
-.dc-swatch:nth-child(1) {
-    background-color: #E7DDCD !important;
-    background-image: linear-gradient(0deg, #E7DDCD, #E7DDCD) !important;
+.dc-swatch:nth-child(1) path {
+    fill: #E7DDCD !important;
 }
 
-.dc-swatch:nth-child(2) {
-    background-color: #CBB2A3 !important;
-    background-image: linear-gradient(0deg, #CBB2A3, #CBB2A3) !important;
+.dc-swatch:nth-child(2) path {
+    fill: #CBB2A3 !important;
 }
 
-.dc-swatch:nth-child(3) {
-    background-color: #C9A38F !important;
-    background-image: linear-gradient(0deg, #C9A38F, #C9A38F) !important;
+.dc-swatch:nth-child(3) path {
+    fill: #C9A38F !important;
 }
 
-.dc-swatch:nth-child(4) {
-    background-color: #B88F79 !important;
-    background-image: linear-gradient(0deg, #B88F79, #B88F79) !important;
+.dc-swatch:nth-child(4) path {
+    fill: #B88F79 !important;
 }
 
-.dc-swatch:nth-child(5) {
-    background-color: #A7AF98 !important;
-    background-image: linear-gradient(0deg, #A7AF98, #A7AF98) !important;
+.dc-swatch:nth-child(5) path {
+    fill: #A7AF98 !important;
 }
 
-.dc-swatch:nth-child(6) {
-    background-color: #7D856B !important;
-    background-image: linear-gradient(0deg, #7D856B, #7D856B) !important;
+.dc-swatch:nth-child(6) path {
+    fill: #7D856B !important;
 }
 
-.dc-swatch:nth-child(7) {
-    background-color: #5D654F !important;
-    background-image: linear-gradient(0deg, #5D654F, #5D654F) !important;
+.dc-swatch:nth-child(7) path {
+    fill: #5D654F !important;
 }
 
-.dc-swatch:nth-child(8) {
-    background-color: #404738 !important;
-    background-image: linear-gradient(0deg, #404738, #404738) !important;
+.dc-swatch:nth-child(8) path {
+    fill: #404738 !important;
 }
 
 .wish-icon {
@@ -2431,47 +2424,40 @@ svg line {
     }
 
     .dc-swatch {
+        background: transparent !important;
         border: none !important;
     }
 
-    .dc-swatch:nth-child(1) {
-        background-color: #E7DDCD !important;
-        background-image: none !important;
+    .dc-swatch:nth-child(1) path {
+        fill: #E7DDCD !important;
     }
 
-    .dc-swatch:nth-child(2) {
-        background-color: #CBB2A3 !important;
-        background-image: none !important;
+    .dc-swatch:nth-child(2) path {
+        fill: #CBB2A3 !important;
     }
 
-    .dc-swatch:nth-child(3) {
-        background-color: #C9A38F !important;
-        background-image: none !important;
+    .dc-swatch:nth-child(3) path {
+        fill: #C9A38F !important;
     }
 
-    .dc-swatch:nth-child(4) {
-        background-color: #B88F79 !important;
-        background-image: none !important;
+    .dc-swatch:nth-child(4) path {
+        fill: #B88F79 !important;
     }
 
-    .dc-swatch:nth-child(5) {
-        background-color: #A7AF98 !important;
-        background-image: none !important;
+    .dc-swatch:nth-child(5) path {
+        fill: #A7AF98 !important;
     }
 
-    .dc-swatch:nth-child(6) {
-        background-color: #7D856B !important;
-        background-image: none !important;
+    .dc-swatch:nth-child(6) path {
+        fill: #7D856B !important;
     }
 
-    .dc-swatch:nth-child(7) {
-        background-color: #5D654F !important;
-        background-image: none !important;
+    .dc-swatch:nth-child(7) path {
+        fill: #5D654F !important;
     }
 
-    .dc-swatch:nth-child(8) {
-        background-color: #404738 !important;
-        background-image: none !important;
+    .dc-swatch:nth-child(8) path {
+        fill: #404738 !important;
     }
 
     .wish-icon {
