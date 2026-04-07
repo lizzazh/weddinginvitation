@@ -1118,18 +1118,16 @@ button {
 .dc-swatch {
     width: 52px;
     height: 52px;
-    border-radius: 50%;
-    border: 2px solid rgba(244, 238, 228, .6);
     cursor: pointer;
     transition: all .35s var(--ease);
     position: relative;
-    box-shadow: 0 2px 8px rgba(64, 71, 56, .08);
+    filter: drop-shadow(0 2px 4px rgba(64, 71, 56, .15));
     overflow: visible;
 }
 
 .dc-swatch:hover {
     transform: scale(1.18);
-    box-shadow: 0 4px 16px rgba(64, 71, 56, .12)
+    filter: drop-shadow(0 4px 8px rgba(64, 71, 56, .2));
 }
 
 .dc-swatch.is-copied {
