@@ -316,28 +316,48 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     loadGallery().then(() => {
-        const expandBtn = document.getElementById('gallery-expand-btn');
-        const wrapper = document.getElementById('gallery-wrapper');
+        let expandBtn = document.getElementById('gallery-expand-btn');
+        let wrapper = document.getElementById('gallery-wrapper');
+        let grid = document.getElementById('gallery-grid');
+        
+        // Self-healing for aggressively cached index.html
+        if (!wrapper && grid) {
+            wrapper = document.createElement('div');
+            wrapper.id = 'gallery-wrapper';
+            wrapper.className = 'gallery-wrapper gallery-collapsed';
+            grid.parentNode.insertBefore(wrapper, grid);
+            wrapper.appendChild(grid);
+            grid.classList.remove('gallery-collapsed');
+        }
+
         if (expandBtn && wrapper) {
-            setTimeout(() => {
-                // If gallery is short enough intrinsically, hide the button and remove collapsed state
-                if (wrapper.scrollHeight <= 450) {
-                    expandBtn.style.display = 'none';
-                    wrapper.classList.remove('gallery-collapsed');
-                } else {
-                    expandBtn.addEventListener('click', () => {
-                        const isExpanded = !wrapper.classList.toggle('gallery-collapsed');
-                        if (isExpanded) {
-                            expandBtn.classList.add('is-expanded');
-                            expandBtn.querySelector('.gallery-expand-text').textContent = 'Згорнути';
-                        } else {
-                            expandBtn.classList.remove('is-expanded');
-                            expandBtn.querySelector('.gallery-expand-text').textContent = 'Розгорнути';
-                            document.getElementById('gallery').scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }
-                    });
-                }
-            }, 300); // Give layout a moment to calculate correctly
+            // Use photo count instead of scrollHeight which can be flaky with lazy-loaded images
+            if (galSrcs.length <= 6) {
+                expandBtn.style.display = 'none';
+                wrapper.classList.remove('gallery-collapsed');
+            } else {
+                // Ensure initial state
+                wrapper.classList.add('gallery-collapsed');
+                expandBtn.classList.remove('is-expanded');
+                
+                // Add click listener safely
+                const oldBtn = expandBtn;
+                const newBtn = oldBtn.cloneNode(true);
+                oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+                expandBtn = newBtn;
+                
+                expandBtn.addEventListener('click', () => {
+                    const isExpanded = !wrapper.classList.toggle('gallery-collapsed');
+                    if (isExpanded) {
+                        expandBtn.classList.add('is-expanded');
+                        expandBtn.querySelector('.gallery-expand-text').textContent = 'Згорнути';
+                    } else {
+                        expandBtn.classList.remove('is-expanded');
+                        expandBtn.querySelector('.gallery-expand-text').textContent = 'Розгорнути';
+                        document.getElementById('gallery').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            }
         }
     });
 
