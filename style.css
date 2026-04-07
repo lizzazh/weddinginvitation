@@ -3,6 +3,8 @@
    ============================================== */
 
 :root {
+    color-scheme: only light;
+
     --ivory: #F4EEE4;
     --beige: #E7DDCD;
     --beige-mid: #D9CCBA;
