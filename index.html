@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Весільне запрошення Романа та Єлизавети — 8 серпня 2026 року.">
+    <title>Роман & Єлизавета — Весільне запрошення</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Jost:wght@200;300;400;500&family=Great+Vibes&family=Pinyon+Script&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Petals canvas — only on envelope screen -->
+    <canvas id="petals-canvas" class="petals-canvas"></canvas>
+
+    <!-- Sparkle canvas — main page shimmer -->
+    <canvas id="sparkle-canvas" class="sparkle-canvas"></canvas>
+
+    <!-- Background music -->
+    <audio id="bg-music" loop preload="auto">
+        <source src="music/Song.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Copy toast -->
+    <div class="copy-toast" id="copy-toast">Колір скопійовано!</div>
+
+    <!-- ═══════ ENVELOPE INTRO ═══════ -->
+    <section id="envelope-screen" class="envelope-screen">
+        <div class="envelope-wrapper">
+            <div class="envelope" id="envelope">
+                <div class="envelope-back">
+                    <div class="envelope-texture"></div>
+                </div>
+                <div class="envelope-flap" id="envelope-flap">
+                    <div class="flap-ornament">
+                        <svg viewBox="0 0 120 60" class="flap-branch flap-branch-left">
+                            <path
+                                d="M60,55 Q40,45 25,50 Q30,40 20,35 Q30,30 25,20 Q35,25 40,15 Q40,28 50,25 Q48,35 60,35"
+                                fill="none" stroke="#7D856B" stroke-width="1.2" opacity="0.6" />
+                            <circle cx="25" cy="50" r="2" fill="#A7AF98" opacity="0.5" />
+                            <circle cx="20" cy="35" r="1.5" fill="#A7AF98" opacity="0.4" />
+                            <circle cx="25" cy="20" r="2" fill="#A7AF98" opacity="0.5" />
+                            <circle cx="40" cy="15" r="1.5" fill="#A7AF98" opacity="0.4" />
+                        </svg>
+                        <svg viewBox="0 0 120 60" class="flap-branch flap-branch-right">
+                            <path
+                                d="M60,55 Q80,45 95,50 Q90,40 100,35 Q90,30 95,20 Q85,25 80,15 Q80,28 70,25 Q72,35 60,35"
+                                fill="none" stroke="#7D856B" stroke-width="1.2" opacity="0.6" />
+                            <circle cx="95" cy="50" r="2" fill="#A7AF98" opacity="0.5" />
+                            <circle cx="100" cy="35" r="1.5" fill="#A7AF98" opacity="0.4" />
+                            <circle cx="95" cy="20" r="2" fill="#A7AF98" opacity="0.5" />
+                            <circle cx="80" cy="15" r="1.5" fill="#A7AF98" opacity="0.4" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="envelope-front">
+                    <div class="envelope-seal">
+                        <span class="seal-letter">R</span>
+                        <span class="seal-amp">&</span>
+                        <span class="seal-letter">E</span>
+                    </div>
+                    <div class="envelope-ornament-bottom">
+                        <svg viewBox="0 0 200 40" width="180">
+                            <path d="M20,20 Q50,5 100,20 Q150,35 180,20" fill="none" stroke="#A7AF98" stroke-width="1"
+                                opacity="0.5" />
+                            <path d="M30,25 Q60,12 100,25 Q140,38 170,25" fill="none" stroke="#7D856B"
+                                stroke-width="0.8" opacity="0.3" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="envelope-letter" id="envelope-letter">
+                    <div class="letter-content">
+                        <p class="letter-script">Весільне запрошення</p>
+                        <p class="letter-names">Роман & Єлизавета</p>
+                        <p class="letter-date">08.08.2026</p>
+                    </div>
+                </div>
+            </div>
+            <div class="envelope-pulse"></div>
+        </div>
+        <div class="envelope-leaves">
+            <div class="leaf leaf-1"></div>
+            <div class="leaf leaf-2"></div>
+            <div class="leaf leaf-3"></div>
+            <div class="leaf leaf-4"></div>
+        </div>
+    </section>
+
+    <!-- ═══════ MAIN CONTENT ═══════ -->
+    <main id="main-content" class="main-content">
+
+        <!-- ─── HERO ─── -->
+        <section id="hero" class="hero-section">
+            <div class="hero-bg">
+                <img src="images/hero-bg.png" alt="" class="hero-bg-img" loading="eager">
+                <div class="hero-overlay"></div>
+            </div>
+            <div class="hero-content">
+                <div class="hero-initials" data-anim="fade">
+                    <span class="hero-initial">R</span>
+                    <span class="hero-amp">&</span>
+                    <span class="hero-initial">E</span>
+                </div>
+                <h1 class="hero-names" data-anim="fade" data-delay="200">
+                    <span class="hero-name-first">Роман</span>
+                    <span class="hero-name-and">&</span>
+                    <span class="hero-name-second">Єлизавета</span>
+                </h1>
+                <p class="hero-subtitle" data-anim="fade" data-delay="400">Запрошують вас на своє весілля</p>
+                <div class="hero-date-line" data-anim="fade" data-delay="600">
+                    <span class="hero-line-deco"></span>
+                    <span class="hero-date-text">08 серпня 2026 &nbsp;|&nbsp; 16:00</span>
+                    <span class="hero-line-deco"></span>
+                </div>
+                <div class="scroll-hint" data-anim="fade" data-delay="900">
+                    <div class="scroll-arrow">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <path d="M12 5v14M5 12l7 7 7-7" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─── WELCOME TEXT ─── -->
+        <section id="welcome" class="section welcome-section">
+            <div class="container">
+                <div class="ornament-top" data-anim="fade">
+                    <svg viewBox="0 0 200 30" width="120">
+                        <path d="M30,15 Q60,3 100,15 Q140,27 170,15" fill="none" stroke="#A7AF98" stroke-width="1"
+                            opacity="0.6" />
+                    </svg>
+                </div>
+                <div class="welcome-text" data-anim="fade-up">
+                    <p class="welcome-greeting">Дорогі та рідні!</p>
+                    <p>У кожного з нас є історія, яка починається з однієї зустрічі. Наша — почалася з погляду, який
+                        змінив усе. І тепер ми готові зробити наступний крок — разом, назавжди.</p>
+                    <p>Запрошуємо вас стати частиною нашого найщасливішого дня. Ваша присутність — найцінніший
+                        подарунок.</p>
+                    <p class="welcome-sign">З любов'ю,<br><span>Роман та Єлизавета</span></p>
+                </div>
+                <div class="ornament-bottom" data-anim="fade">
+                    <svg viewBox="0 0 200 30" width="120">
+                        <path d="M30,15 Q60,27 100,15 Q140,3 170,15" fill="none" stroke="#A7AF98" stroke-width="1"
+                            opacity="0.6" />
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─── COUNTDOWN ─── -->
+        <section id="countdown" class="section countdown-section">
+            <div class="container">
+                <h2 class="section-label" data-anim="fade">До нашого свята</h2>
+                <div class="countdown-grid" id="countdown-timer" data-anim="fade-up">
+                    <div class="countdown-cell">
+                        <span class="countdown-num" id="cd-days">000</span>
+                        <span class="countdown-word">днів</span>
+                    </div>
+                    <div class="countdown-sep">:</div>
+                    <div class="countdown-cell">
+                        <span class="countdown-num" id="cd-hours">00</span>
+                        <span class="countdown-word">годин</span>
+                    </div>
+                    <div class="countdown-sep">:</div>
+                    <div class="countdown-cell">
+                        <span class="countdown-num" id="cd-mins">00</span>
+                        <span class="countdown-word">хвилин</span>
+                    </div>
+                    <div class="countdown-sep">:</div>
+                    <div class="countdown-cell">
+                        <span class="countdown-num" id="cd-secs">00</span>
+                        <span class="countdown-word">секунд</span>
+                    </div>
+                </div>
+                <p class="countdown-date" data-anim="fade" data-delay="200">Субота, 8 серпня 2026 року</p>
+            </div>
+        </section>
+
+        <!-- ─── VENUE ─── -->
+        <section id="venue" class="section venue-section">
+            <div class="container">
+                <h2 class="section-label" data-anim="fade">Місце проведення</h2>
+                <div class="venue-card" data-anim="fade-up">
+                    <div class="venue-img-wrap">
+                        <img src="images/venue.png" alt="База відпочинку Весела Роща" loading="lazy">
+                    </div>
+                    <div class="venue-info">
+                        <h3 class="venue-name">База відпочинку «Весела Роща»</h3>
+                        <p class="venue-address">автодороги Бориспіль–Дніпро–Запоріжжя, 356 км,<br>Зелений Гай,
+                            Дніпропетровська область</p>
+                        <a href="https://www.google.com/maps/search/База+відпочинку+Весела+Роща+Зелений+Гай+Дніпропетровська+область"
+                            target="_blank" rel="noopener" class="btn-map" id="btn-map">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                <circle cx="12" cy="10" r="3" />
+                            </svg>
+                            Прокласти маршрут
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─── SCHEDULE ─── -->
+        <section id="schedule" class="section schedule-section">
+            <div class="container">
+                <h2 class="section-label" data-anim="fade">Програма дня</h2>
+                <div class="timeline">
+                    <div class="timeline-track"></div>
+                    <div class="tl-item" data-anim="fade-left">
+                        <div class="tl-dot"></div>
+                        <div class="tl-card"><span class="tl-time">15:30</span>
+                            <div class="tl-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none"
+                                    stroke="currentColor" stroke-width="1.3">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                    <circle cx="9" cy="7" r="4" />
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                </svg></div>
+                            <h4>Збір гостей</h4>
+                            <p>Welcome-зона з напоями та легкими закусками</p>
+                        </div>
+                    </div>
+                    <div class="tl-item" data-anim="fade-right">
+                        <div class="tl-dot"></div>
+                        <div class="tl-card"><span class="tl-time">16:00</span>
+                            <div class="tl-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none"
+                                    stroke="currentColor" stroke-width="1.3">
+                                    <path
+                                        d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                                </svg></div>
+                            <h4>Церемонія</h4>
+                            <p>Урочиста церемонія одруження</p>
+                        </div>
+                    </div>
+                    <div class="tl-item" data-anim="fade-left">
+                        <div class="tl-dot"></div>
+                        <div class="tl-card"><span class="tl-time">17:00</span>
+                            <div class="tl-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none"
+                                    stroke="currentColor" stroke-width="1.3">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                    <circle cx="8.5" cy="8.5" r="1.5" />
+                                    <polyline points="21 15 16 10 5 21" />
+                                </svg></div>
+                            <h4>Привітання та фото</h4>
+                            <p>Фотосесія з гостями та побажання</p>
+                        </div>
+                    </div>
+                    <div class="tl-item" data-anim="fade-right">
+                        <div class="tl-dot"></div>
+                        <div class="tl-card"><span class="tl-time">18:00</span>
+                            <div class="tl-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none"
+                                    stroke="currentColor" stroke-width="1.3">
+                                    <path d="M17 8h1a4 4 0 1 1 0 8h-1" />
+                                    <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z" />
+                                    <line x1="6" y1="2" x2="6" y2="4" />
+                                    <line x1="10" y1="2" x2="10" y2="4" />
+                                    <line x1="14" y1="2" x2="14" y2="4" />
+                                </svg></div>
+                            <h4>Святкова вечеря</h4>
+                            <p>Банкет, тости та поздоровлення</p>
+                        </div>
+                    </div>
+                    <div class="tl-item" data-anim="fade-left">
+                        <div class="tl-dot"></div>
+                        <div class="tl-card"><span class="tl-time">20:00</span>
+                            <div class="tl-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none"
+                                    stroke="currentColor" stroke-width="1.3">
+                                    <path d="M9 18V5l12-2v13" />
+                                    <circle cx="6" cy="18" r="3" />
+                                    <circle cx="18" cy="16" r="3" />
+                                </svg></div>
+                            <h4>Музика та веселощі</h4>
+                            <p>Танці, конкурси та святкування</p>
+                        </div>
+                    </div>
+                    <div class="tl-item" data-anim="fade-right">
+                        <div class="tl-dot"></div>
+                        <div class="tl-card"><span class="tl-time">23:00</span>
+                            <div class="tl-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none"
+                                    stroke="currentColor" stroke-width="1.3">
+                                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                                </svg></div>
+                            <h4>Завершення вечора</h4>
+                            <p>Фінальний танець та прощання</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─── GALLERY ─── -->
+        <section id="gallery" class="section gallery-section">
+            <div class="container container-gallery">
+                <h2 class="section-label" data-anim="fade">Наші моменти</h2>
+                <div class="gallery-masonry" id="gallery-grid" data-anim="fade-up"></div>
+            </div>
+        </section>
+
+        <!-- Lightbox -->
+        <div class="lightbox" id="lightbox">
+            <button class="lb-close" id="lb-close" aria-label="Закрити"><svg viewBox="0 0 24 24" width="28" height="28"
+                    fill="none" stroke="currentColor" stroke-width="1.5">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg></button>
+            <button class="lb-prev" id="lb-prev" aria-label="Попередня"><svg viewBox="0 0 24 24" width="28" height="28"
+                    fill="none" stroke="currentColor" stroke-width="1.5">
+                    <polyline points="15 18 9 12 15 6" />
+                </svg></button>
+            <button class="lb-next" id="lb-next" aria-label="Наступна"><svg viewBox="0 0 24 24" width="28" height="28"
+                    fill="none" stroke="currentColor" stroke-width="1.5">
+                    <polyline points="9 6 15 12 9 18" />
+                </svg></button>
+            <div class="lb-img-wrap"><img src="" alt="" id="lb-img" class="lb-img"></div>
+            <div class="lb-counter" id="lb-counter"></div>
+        </div>
+
+        <!-- ─── DRESS CODE ─── -->
+        <section id="dresscode" class="section dresscode-section">
+            <div class="container">
+                <h2 class="section-label" data-anim="fade">Дрес-код</h2>
+                <p class="dresscode-text" data-anim="fade-up">Будемо вдячні, якщо ваш образ буде відповідати кольоровій
+                    палітрі нашого свята</p>
+                <div class="dresscode-palette" data-anim="fade-up" data-delay="100">
+                    <div class="dc-swatch" style="background:#E7DDCD" data-color="#E7DDCD" data-label="Беж"></div>
+                    <div class="dc-swatch" style="background:#CBB2A3" data-color="#CBB2A3" data-label="Нюд"></div>
+                    <div class="dc-swatch" style="background:#C9A38F" data-color="#C9A38F" data-label="Тауп"></div>
+                    <div class="dc-swatch" style="background:#B88F79" data-color="#B88F79" data-label="Терракота"></div>
+                    <div class="dc-swatch" style="background:#A7AF98" data-color="#A7AF98" data-label="Шавлія"></div>
+                    <div class="dc-swatch" style="background:#7D856B" data-color="#7D856B" data-label="Олива"></div>
+                    <div class="dc-swatch" style="background:#5D654F" data-color="#5D654F" data-label="Темний мох">
+                    </div>
+                    <div class="dc-swatch" style="background:#404738" data-color="#404738" data-label="Глибокий ліс">
+                    </div>
+                </div>
+                <p class="dresscode-note" data-anim="fade" data-delay="200">Просимо уникати білого кольору — він
+                    зарезервований для нареченої&nbsp;🤍</p>
+                <p class="dresscode-copy-hint" data-anim="fade" data-delay="250">Натисніть на колір, щоб скопіювати</p>
+            </div>
+        </section>
+
+        <!-- ─── WISHES ─── -->
+        <section id="wishes" class="section wishes-section">
+            <div class="container">
+                <h2 class="section-label" data-anim="fade">Побажання</h2>
+                <div class="wishes-content" data-anim="fade-up">
+                    <div class="wish-item">
+                        <div class="wish-icon"><svg viewBox="0 0 24 24" width="28" height="28" fill="none"
+                                stroke="currentColor" stroke-width="1.3">
+                                <path
+                                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                            </svg></div>
+                        <p>Ваша присутність — це найкращий подарунок для нас. Ми не чекаємо подарунків, але якщо ви
+                            бажаєте зробити внесок у наше спільне майбутнє — ми будемо вдячні за конверт.</p>
+                    </div>
+                    <div class="wish-item">
+                        <div class="wish-icon"><svg viewBox="0 0 24 24" width="28" height="28" fill="none"
+                                stroke="currentColor" stroke-width="1.3">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                            </svg></div>
+                        <p>Замість квітів, ми будемо раді, якщо ви принесете корм для тварин — ми передамо його до
+                            притулку. Давайте разом зробимо добро! 🐾</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─── RSVP ─── -->
+        <section id="rsvp" class="section rsvp-section">
+            <div class="container">
+                <h2 class="section-label" data-anim="fade">Підтвердження присутності</h2>
+                <p class="rsvp-intro" data-anim="fade-up">Будь ласка, повідомте нас про вашу присутність до <strong>1
+                        серпня 2026</strong></p>
+                <form class="rsvp-form" id="rsvp-form" data-anim="fade-up" data-delay="100">
+                    <div class="field">
+                        <label for="f-name">Ваше ім'я</label>
+                        <input type="text" id="f-name" name="name" placeholder="Ваше ім'я" required>
+                    </div>
+                    <div class="field">
+                        <label>Чи зможете бути присутніми?</label>
+                        <div class="radio-row">
+                            <label class="radio-opt"><input type="radio" name="attend" value="yes" required><span
+                                    class="radio-box"></span><span>Так, з радістю!</span></label>
+                            <label class="radio-opt"><input type="radio" name="attend" value="no"><span
+                                    class="radio-box"></span><span>На жаль, ні</span></label>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="f-guests">Кількість гостей з вами</label>
+                        <select id="f-guests" name="guests">
+                            <option value="0">Тільки я</option>
+                            <option value="1">+1 гість</option>
+                            <option value="2">+2 гості</option>
+                            <option value="3">+3 гості</option>
+                        </select>
+                    </div>
+                    <div id="guest-names-container" class="guest-names-container"></div>
+                    <div class="field">
+                        <label>Чи потрібен трансфер?</label>
+                        <div class="radio-row">
+                            <label class="radio-opt"><input type="radio" name="transfer" value="yes"><span
+                                    class="radio-box"></span><span>Так, потрібен</span></label>
+                            <label class="radio-opt"><input type="radio" name="transfer" value="no" checked><span
+                                    class="radio-box"></span><span>Ні, дістанусь самостійно</span></label>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="f-comment">Коментар або побажання</label>
+                        <textarea id="f-comment" name="comment"
+                            placeholder="Алергія, дієтичні обмеження або просто добрі слова..." rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit" id="btn-submit"><span>Надіслати відповідь</span></button>
+                </form>
+                <div class="rsvp-ok" id="rsvp-ok">
+                    <div class="ok-icon"><svg viewBox="0 0 24 24" width="56" height="56" fill="none" stroke="#7D856B"
+                            stroke-width="1.5">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                            <polyline points="22 4 12 14.01 9 11.01" />
+                        </svg></div>
+                    <h3>Дякуємо!</h3>
+                    <p>Ваша відповідь надіслана. Ми з нетерпінням чекаємо зустрічі!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─── FOOTER ─── -->
+        <section id="final" class="section final-section">
+            <div class="container">
+                <div class="final-ornament" data-anim="fade"><svg viewBox="0 0 200 40" width="140">
+                        <path d="M20,20 Q50,5 100,20 Q150,35 180,20" fill="none" stroke="#A7AF98" stroke-width="1"
+                            opacity="0.5" />
+                    </svg></div>
+                <p class="final-script" data-anim="fade" data-delay="100">Назавжди разом</p>
+                <h2 class="final-names" data-anim="fade" data-delay="200">Роман & Єлизавета</h2>
+                <p class="final-date" data-anim="fade" data-delay="300">08 · 08 · 2026</p>
+                <div class="final-ornament" data-anim="fade" data-delay="400"><svg viewBox="0 0 200 40" width="140">
+                        <path d="M20,20 Q50,35 100,20 Q150,5 180,20" fill="none" stroke="#A7AF98" stroke-width="1"
+                            opacity="0.5" />
+                    </svg></div>
+                <p class="final-copy">Зроблено з любов'ю</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- ═══════ MUSIC CONTROL ═══════ -->
+    <div class="music-panel" id="music-panel">
+        <button class="music-btn" id="music-btn" aria-label="Музика">
+            <svg class="m-icon m-on" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                stroke-width="1.5">
+                <path d="M9 18V5l12-2v13" />
+                <circle cx="6" cy="18" r="3" />
+                <circle cx="18" cy="16" r="3" />
+            </svg>
+            <svg class="m-icon m-off" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                stroke-width="1.5">
+                <path d="M9 18V5l12-2v13" />
+                <circle cx="6" cy="18" r="3" />
+                <circle cx="18" cy="16" r="3" />
+                <line x1="1" y1="1" x2="23" y2="23" />
+            </svg>
+        </button>
+        <div class="volume-slider-wrap" id="volume-slider-wrap">
+            <input type="range" min="0" max="100" value="35" class="volume-slider" id="volume-slider"
+                aria-label="Гучність">
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>

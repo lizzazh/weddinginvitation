@@ -1,0 +1,3 @@
+# Sensitive config
+.env
+config.js
