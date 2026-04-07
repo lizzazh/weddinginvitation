@@ -1,4 +1,4 @@
-﻿/* ==============================================
+/* ==============================================
    ROMAN & ELIZAVETA — WEDDING INVITATION
    ============================================== */
 
@@ -285,19 +285,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function loadGallery() {
+        const promises = [];
         for (let i = 1; i <= MAX_GALLERY; i++) {
-            try {
-                const src = await tryImg(i);
-                galSrcs.push(src);
-                const div = document.createElement('div');
-                div.className = 'gal-item';
-                div.dataset.index = galSrcs.length - 1;
-                const img = document.createElement('img');
-                img.src = src; img.alt = `Фото ${i}`; img.loading = 'lazy';
-                div.appendChild(img); galGrid.appendChild(div);
-                div.addEventListener('click', () => openLB(parseInt(div.dataset.index)));
-            } catch { continue }
+            promises.push(
+                tryImg(i)
+                    .then(src => ({ index: i, src }))
+                    .catch(() => null)
+            );
         }
+        
+        const results = await Promise.all(promises);
+        const validResults = results.filter(Boolean).sort((a, b) => a.index - b.index);
+        
+        validResults.forEach(item => {
+            galSrcs.push(item.src);
+            const div = document.createElement('div');
+            div.className = 'gal-item';
+            div.dataset.index = galSrcs.length - 1;
+            const img = document.createElement('img');
+            img.src = item.src; 
+            img.alt = `Фото ${item.index}`; 
+            img.loading = 'lazy';
+            div.appendChild(img); 
+            galGrid.appendChild(div);
+            div.addEventListener('click', () => openLB(parseInt(div.dataset.index)));
+        });
+
         if (!galSrcs.length) {
             galGrid.innerHTML = '<p style="text-align:center;color:#7A7768;font-style:italic;padding:40px 0">Фото будуть додані пізніше...</p>';
         }
