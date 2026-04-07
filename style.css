@@ -1757,15 +1757,14 @@ button {
 
 
 /* ═══════════════════════════════════════════════════
-   BEAUTIFUL DARK THEME
-   When the system is in dark mode, show an elegant
-   dark version of the invitation that force-dark
-   algorithms won't touch (it's already dark).
+   DARK THEME — force-dark proof
+   Uses background-image: linear-gradient() + !important
+   so force-dark algorithms SKIP these elements.
+   Uses -webkit-text-fill-color for text protection.
    ═══════════════════════════════════════════════════ */
 
 @media (prefers-color-scheme: dark) {
 
-    /* ── Dark palette via CSS variables ── */
     :root {
         --ivory: #1C1E19;
         --beige: #25271F;
@@ -1774,409 +1773,204 @@ button {
         --text: #D9CCBA;
         --text-soft: #B5AFA3;
         --text-muted: #8A8678;
-        color-scheme: dark;
+        color-scheme: dark !important;
     }
 
-    /* ── Global ── */
-    html,
-    body {
-        background-color: #1C1E19;
-        color: #D9CCBA;
+    html, body {
+        background-color: #1C1E19 !important;
+        background-image: linear-gradient(0deg, #1C1E19, #1C1E19) !important;
+        color: #D9CCBA !important;
+        -webkit-text-fill-color: #D9CCBA !important;
     }
 
-    body {
-        background-image: none;
-    }
-
-    /* ── Sections: primary dark bg ── */
+    /* ── Sections: primary bg ── */
     .envelope-screen,
     .countdown-section,
     .schedule-section,
     .dresscode-section,
     .rsvp-section {
-        background-color: #1C1E19;
+        background-color: #1C1E19 !important;
+        background-image: linear-gradient(0deg, #1C1E19, #1C1E19) !important;
     }
 
-    /* ── Sections: secondary dark bg ── */
+    /* ── Sections: secondary bg ── */
     .welcome-section,
     .venue-section,
     .gallery-section,
     .wishes-section,
     .final-section {
-        background-color: #25271F;
+        background-color: #25271F !important;
+        background-image: linear-gradient(0deg, #25271F, #25271F) !important;
     }
 
-    /* ── Cards & cells ── */
-    .venue-card,
-    .wish-item,
-    .countdown-cell,
-    .rsvp-ok,
-    .radio-box {
-        background-color: #25271F;
-        border-color: rgba(167, 175, 152, .15);
+    /* ── Cards ── */
+    .venue-card, .wish-item, .countdown-cell, .rsvp-ok, .radio-box {
+        background-color: #25271F !important;
+        background-image: linear-gradient(0deg, #25271F, #25271F) !important;
+        border-color: rgba(167, 175, 152, .15) !important;
     }
 
     .tl-card {
-        background-color: #2E3028;
-        border-color: rgba(167, 175, 152, .12);
+        background-color: #2E3028 !important;
+        background-image: linear-gradient(0deg, #2E3028, #2E3028) !important;
+        border-color: rgba(167, 175, 152, .12) !important;
     }
 
     .envelope-letter {
-        background-color: #25271F;
+        background-color: #25271F !important;
+        background-image: linear-gradient(0deg, #25271F, #25271F) !important;
     }
 
     .tl-dot {
-        background-color: #1C1E19;
-        border-color: #7D856B;
+        background-color: #1C1E19 !important;
+        background-image: linear-gradient(0deg, #1C1E19, #1C1E19) !important;
+        border-color: #7D856B !important;
     }
 
     /* ── Envelope ── */
     .envelope-back {
-        background: linear-gradient(165deg, #2E3028, #25271F);
+        background: linear-gradient(165deg, #2E3028, #25271F) !important;
     }
-
     .envelope-flap::before {
-        background: linear-gradient(170deg, #353830, #2E3028);
+        background: linear-gradient(170deg, #353830, #2E3028) !important;
     }
-
-    .seal-letter {
-        color: #E7DDCD;
-    }
-
-    .seal-amp {
-        color: #A7AF98;
-    }
-
+    .seal-letter { color: #E7DDCD !important; -webkit-text-fill-color: #E7DDCD !important; }
+    .seal-amp { color: #A7AF98 !important; -webkit-text-fill-color: #A7AF98 !important; }
     .envelope-seal {
-        background: rgba(64, 71, 56, .4);
-        border-color: rgba(125, 133, 107, .3);
+        background: rgba(64, 71, 56, .4) !important;
+        background-image: linear-gradient(0deg, rgba(64,71,56,.4), rgba(64,71,56,.4)) !important;
+        border-color: rgba(125, 133, 107, .3) !important;
     }
-
-    .envelope-ornament {
-        color: rgba(167, 175, 152, .35);
-    }
-
-    .envelope-pulse {
-        animation: envPulse 2.5s ease-in-out infinite;
-    }
-
-    .envelope-hint {
-        color: #8A8678;
-    }
+    .envelope-hint { color: #8A8678 !important; -webkit-text-fill-color: #8A8678 !important; }
 
     /* ── Hero ── */
     .hero-overlay {
         background: linear-gradient(180deg,
-                rgba(28, 30, 25, .92) 0%,
-                rgba(28, 30, 25, .78) 30%,
-                rgba(28, 30, 25, .72) 55%,
-                rgba(28, 30, 25, .85) 75%,
-                rgba(28, 30, 25, .98) 100%);
+            rgba(28,30,25,.92) 0%, rgba(28,30,25,.78) 30%,
+            rgba(28,30,25,.72) 55%, rgba(28,30,25,.85) 75%,
+            rgba(28,30,25,.98) 100%) !important;
     }
-
-    .hero-initial {
-        color: #E7DDCD;
-    }
-
-    .hero-amp {
-        color: #A7AF98;
-    }
-
-    .hero-name-first,
-    .hero-name-second {
-        color: #E7DDCD;
-    }
-
-    .hero-name-and {
-        color: #A7AF98;
-    }
-
-    .hero-subtitle {
-        color: #B5AFA3;
-    }
-
-    .hero-date-text {
-        color: #E7DDCD;
-    }
-
-    .hero-line-deco {
-        background: linear-gradient(90deg, transparent, #7D856B, transparent);
-    }
+    .hero-initial { color: #E7DDCD !important; -webkit-text-fill-color: #E7DDCD !important; }
+    .hero-amp { color: #A7AF98 !important; -webkit-text-fill-color: #A7AF98 !important; }
+    .hero-name-first, .hero-name-second { color: #E7DDCD !important; -webkit-text-fill-color: #E7DDCD !important; }
+    .hero-name-and { color: #A7AF98 !important; -webkit-text-fill-color: #A7AF98 !important; }
+    .hero-subtitle { color: #B5AFA3 !important; -webkit-text-fill-color: #B5AFA3 !important; }
+    .hero-date-text { color: #E7DDCD !important; -webkit-text-fill-color: #E7DDCD !important; }
+    .hero-line-deco { background: linear-gradient(90deg, transparent, #7D856B, transparent) !important; }
 
     /* ── Section labels ── */
-    .section-label {
-        color: #E7DDCD;
-    }
-
-    .section-label::before,
-    .section-label::after {
-        background: linear-gradient(90deg, transparent, rgba(167, 175, 152, .3));
-    }
-
-    .section-label::after {
-        background: linear-gradient(90deg, rgba(167, 175, 152, .3), transparent);
-    }
+    .section-label { color: #E7DDCD !important; -webkit-text-fill-color: #E7DDCD !important; }
 
     /* ── Welcome ── */
-    .welcome-text p {
-        color: #D9CCBA;
-    }
-
-    .welcome-greeting {
-        color: #A7AF98;
-    }
-
-    .welcome-sign span {
-        color: #A7AF98;
-    }
+    .welcome-text p { color: #D9CCBA !important; -webkit-text-fill-color: #D9CCBA !important; }
+    .welcome-greeting { color: #A7AF98 !important; -webkit-text-fill-color: #A7AF98 !important; }
+    .welcome-sign span { color: #A7AF98 !important; -webkit-text-fill-color: #A7AF98 !important; }
 
     /* ── Countdown ── */
-    .countdown-num {
-        color: #E7DDCD;
-    }
-
-    .countdown-word {
-        color: #8A8678;
-    }
-
-    .countdown-sep {
-        color: #7D856B;
-    }
-
-    .countdown-date {
-        color: #B5AFA3;
-    }
+    .countdown-num { color: #E7DDCD !important; -webkit-text-fill-color: #E7DDCD !important; }
+    .countdown-word { color: #8A8678 !important; -webkit-text-fill-color: #8A8678 !important; }
+    .countdown-sep { color: #7D856B !important; -webkit-text-fill-color: #7D856B !important; }
+    .countdown-date { color: #B5AFA3 !important; -webkit-text-fill-color: #B5AFA3 !important; }
 
     /* ── Venue ── */
-    .venue-name {
-        color: #E7DDCD;
-    }
-
-    .venue-address {
-        color: #B5AFA3;
-    }
-
-    .btn-map {
-        color: #E7DDCD;
-        border-color: rgba(125, 133, 107, .4);
-    }
-
-    .btn-map:hover {
-        background-color: rgba(125, 133, 107, .15);
-    }
+    .venue-name { color: #E7DDCD !important; -webkit-text-fill-color: #E7DDCD !important; }
+    .venue-address { color: #B5AFA3 !important; -webkit-text-fill-color: #B5AFA3 !important; }
+    .btn-map { color: #E7DDCD !important; -webkit-text-fill-color: #E7DDCD !important; border-color: rgba(125,133,107,.4) !important; }
 
     /* ── Schedule ── */
-    .tl-time {
-        color: #A7AF98;
-    }
+    .tl-time { color: #A7AF98 !important; -webkit-text-fill-color: #A7AF98 !important; }
+    .tl-icon { color: #7D856B !important; -webkit-text-fill-color: #7D856B !important; }
+    .tl-card h4 { color: #E7DDCD !important; -webkit-text-fill-color: #E7DDCD !important; }
+    .tl-card p { color: #B5AFA3 !important; -webkit-text-fill-color: #B5AFA3 !important; }
 
-    .tl-icon {
-        color: #7D856B;
-    }
+    /* ── DRESS CODE — EXACT original swatch colors with gradient trick ── */
+    .dresscode-text { color: #D9CCBA !important; -webkit-text-fill-color: #D9CCBA !important; }
+    .dresscode-note { color: #B5AFA3 !important; -webkit-text-fill-color: #B5AFA3 !important; }
+    .dresscode-copy-hint { color: #8A8678 !important; -webkit-text-fill-color: #8A8678 !important; }
 
-    .tl-card h4 {
-        color: #E7DDCD;
-    }
-
-    .tl-card p {
-        color: #B5AFA3;
-    }
-
-    .tl-line {
-        background-color: rgba(125, 133, 107, .3);
-    }
-
-    /* ── Gallery ── */
-    .lightbox {
-        background-color: rgba(20, 22, 18, .96);
-    }
-
-    .gal-item {
-        border-color: rgba(125, 133, 107, .15);
-    }
-
-    /* ── DRESS CODE — swatches keep their EXACT colors ── */
-    .dresscode-text {
-        color: #D9CCBA;
-    }
-
-    .dresscode-note {
-        color: #B5AFA3;
-    }
-
-    .dresscode-copy-hint {
-        color: #8A8678;
-    }
-
-    .dc-swatch:nth-child(1) {
-        background-color: #E7DDCD;
-    }
-
-    .dc-swatch:nth-child(2) {
-        background-color: #CBB2A3;
-    }
-
-    .dc-swatch:nth-child(3) {
-        background-color: #C9A38F;
-    }
-
-    .dc-swatch:nth-child(4) {
-        background-color: #B88F79;
-    }
-
-    .dc-swatch:nth-child(5) {
-        background-color: #A7AF98;
-    }
-
-    .dc-swatch:nth-child(6) {
-        background-color: #7D856B;
-    }
-
-    .dc-swatch:nth-child(7) {
-        background-color: #5D654F;
-    }
-
-    .dc-swatch:nth-child(8) {
-        background-color: #404738;
-    }
-
-    .dc-swatch {
-        border: 1px solid rgba(167, 175, 152, .2);
-    }
+    .dc-swatch { border: 1px solid rgba(167,175,152,.25) !important; }
+    .dc-swatch:nth-child(1) { background-color: #E7DDCD !important; background-image: linear-gradient(0deg, #E7DDCD, #E7DDCD) !important; }
+    .dc-swatch:nth-child(2) { background-color: #CBB2A3 !important; background-image: linear-gradient(0deg, #CBB2A3, #CBB2A3) !important; }
+    .dc-swatch:nth-child(3) { background-color: #C9A38F !important; background-image: linear-gradient(0deg, #C9A38F, #C9A38F) !important; }
+    .dc-swatch:nth-child(4) { background-color: #B88F79 !important; background-image: linear-gradient(0deg, #B88F79, #B88F79) !important; }
+    .dc-swatch:nth-child(5) { background-color: #A7AF98 !important; background-image: linear-gradient(0deg, #A7AF98, #A7AF98) !important; }
+    .dc-swatch:nth-child(6) { background-color: #7D856B !important; background-image: linear-gradient(0deg, #7D856B, #7D856B) !important; }
+    .dc-swatch:nth-child(7) { background-color: #5D654F !important; background-image: linear-gradient(0deg, #5D654F, #5D654F) !important; }
+    .dc-swatch:nth-child(8) { background-color: #404738 !important; background-image: linear-gradient(0deg, #404738, #404738) !important; }
 
     /* ── Wishes ── */
-    .wish-icon {
-        color: #7D856B;
-    }
-
-    .wish-item p {
-        color: #D9CCBA;
-    }
+    .wish-icon { color: #7D856B !important; -webkit-text-fill-color: #7D856B !important; }
+    .wish-item p { color: #D9CCBA !important; -webkit-text-fill-color: #D9CCBA !important; }
 
     /* ── RSVP ── */
-    .rsvp-intro {
-        color: #B5AFA3;
-    }
+    .rsvp-intro { color: #B5AFA3 !important; -webkit-text-fill-color: #B5AFA3 !important; }
+    .rsvp-intro strong { color: #A7AF98 !important; -webkit-text-fill-color: #A7AF98 !important; }
+    .field label { color: #8A8678 !important; -webkit-text-fill-color: #8A8678 !important; }
 
-    .rsvp-intro strong {
-        color: #A7AF98;
+    .field input, .field select, .field textarea {
+        background-color: #2E3028 !important;
+        background-image: linear-gradient(0deg, #2E3028, #2E3028) !important;
+        color: #D9CCBA !important;
+        -webkit-text-fill-color: #D9CCBA !important;
+        border-color: rgba(125,133,107,.25) !important;
     }
+    .field input::placeholder, .field textarea::placeholder { color: #6A6758 !important; }
 
-    .field label {
-        color: #8A8678;
-    }
-
-    .field input,
-    .field select,
-    .field textarea {
-        background-color: #2E3028;
-        color: #D9CCBA;
-        border-color: rgba(125, 133, 107, .25);
-    }
-
-    .field input::placeholder,
-    .field textarea::placeholder {
-        color: #6A6758;
-    }
-
-    .field select {
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23A7AF98' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-    }
-
-    .radio-opt span:last-child {
-        color: #D9CCBA;
-    }
-
+    .radio-opt span:last-child { color: #D9CCBA !important; -webkit-text-fill-color: #D9CCBA !important; }
     .radio-box {
-        border-color: rgba(125, 133, 107, .4);
-        background-color: #25271F;
+        border-color: rgba(125,133,107,.4) !important;
+        background-color: #25271F !important;
+        background-image: linear-gradient(0deg, #25271F, #25271F) !important;
     }
+    .radio-box::after { background-color: #A7AF98 !important; }
 
-    .radio-box::after {
-        background-color: #A7AF98;
-    }
-
-    .guest-name-field label {
-        color: #8A8678;
-    }
-
+    .guest-name-field label { color: #8A8678 !important; -webkit-text-fill-color: #8A8678 !important; }
     .guest-name-field input {
-        background-color: #2E3028;
-        color: #D9CCBA;
+        background-color: #2E3028 !important;
+        background-image: linear-gradient(0deg, #2E3028, #2E3028) !important;
+        color: #D9CCBA !important;
+        -webkit-text-fill-color: #D9CCBA !important;
     }
 
     .btn-submit {
-        background-color: #7D856B;
-        color: #1C1E19;
+        background-color: #7D856B !important;
+        background-image: linear-gradient(0deg, #7D856B, #7D856B) !important;
+        color: #1C1E19 !important;
+        -webkit-text-fill-color: #1C1E19 !important;
     }
 
-    .btn-submit:hover {
-        background-color: #A7AF98;
-    }
-
-    .rsvp-ok h3 {
-        color: #A7AF98;
-    }
-
-    .rsvp-ok p {
-        color: #B5AFA3;
-    }
+    .rsvp-ok h3 { color: #A7AF98 !important; -webkit-text-fill-color: #A7AF98 !important; }
+    .rsvp-ok p { color: #B5AFA3 !important; -webkit-text-fill-color: #B5AFA3 !important; }
 
     /* ── Final ── */
-    .final-script {
-        color: #A7AF98;
-    }
-
-    .final-names {
-        color: #E7DDCD;
-    }
-
-    .final-date {
-        color: #8A8678;
-    }
-
-    .final-copy {
-        color: #8A8678;
-    }
+    .final-script { color: #A7AF98 !important; -webkit-text-fill-color: #A7AF98 !important; }
+    .final-names { color: #E7DDCD !important; -webkit-text-fill-color: #E7DDCD !important; }
+    .final-date { color: #8A8678 !important; -webkit-text-fill-color: #8A8678 !important; }
+    .final-copy { color: #8A8678 !important; -webkit-text-fill-color: #8A8678 !important; }
 
     /* ── Music ── */
     .music-btn {
-        background-color: rgba(46, 48, 40, .92);
-        color: #E7DDCD;
+        background-color: rgba(46,48,40,.92) !important;
+        background-image: linear-gradient(0deg, rgba(46,48,40,.92), rgba(46,48,40,.92)) !important;
+        color: #E7DDCD !important;
+        -webkit-text-fill-color: #E7DDCD !important;
     }
-
     .volume-slider-wrap {
-        background-color: rgba(46, 48, 40, .92);
+        background-color: rgba(46,48,40,.92) !important;
+        background-image: linear-gradient(0deg, rgba(46,48,40,.92), rgba(46,48,40,.92)) !important;
     }
 
-    /* ── Copy toast ── */
     .copy-toast {
-        background-color: #7D856B;
-        color: #1C1E19;
+        background-color: #7D856B !important;
+        background-image: linear-gradient(0deg, #7D856B, #7D856B) !important;
+        color: #1C1E19 !important;
+        -webkit-text-fill-color: #1C1E19 !important;
     }
 
-    /* ── Sparkle canvas ── */
-    .sparkle-canvas {
-        opacity: 0.6;
-    }
+    .sparkle-canvas { opacity: 0.6; }
 
-    /* ── Images / Canvas — keep natural ── */
-    img {
-        filter: none;
-        -webkit-filter: none;
-    }
-
-    canvas {
-        filter: none;
-        -webkit-filter: none;
-    }
-
-    svg path,
-    svg circle,
-    svg line,
-    svg polyline,
-    svg rect {
-        filter: none;
-        -webkit-filter: none;
+    img, canvas, svg, svg path, svg circle, svg line, svg polyline, svg rect {
+        filter: none !important;
+        -webkit-filter: none !important;
     }
 }
