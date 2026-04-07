@@ -65,7 +65,7 @@ body {
     line-height: 1.75;
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"), linear-gradient(0deg, #F4EEE4, #F4EEE4);
 }
 
 img {
@@ -1231,9 +1231,10 @@ button {
 .field select {
     appearance: none;
     cursor: pointer;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237D856B' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 14px center;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237D856B' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"), linear-gradient(0deg, #E7DDCD, #E7DDCD);
+    background-repeat: no-repeat, repeat;
+    background-position: right 14px center, 0 0;
+    background-size: auto, 100% 100%;
     padding-right: 40px;
 }
 
@@ -1754,9 +1755,159 @@ button {
     }
 }
 
+/* ═══════════════════════════════════════════════════════════
+   ANTI FORCE-DARK — background-image gradient trick
+   Android WebView / Samsung Internet / Telegram WebView
+   skip darkening elements that have background-image set.
+   A solid-color linear-gradient() counts as background-image.
+   ═══════════════════════════════════════════════════════════ */
+
+html {
+    background-image: linear-gradient(0deg, #F4EEE4, #F4EEE4);
+}
+
+/* Ivory-background elements */
+.envelope-screen,
+.envelope-letter,
+.countdown-section,
+.schedule-section,
+.dresscode-section,
+.rsvp-section,
+.venue-card,
+.wish-item,
+.countdown-cell,
+.tl-dot,
+.rsvp-ok,
+.radio-box {
+    background-image: linear-gradient(0deg, #F4EEE4, #F4EEE4) !important;
+}
+
+/* Beige-background elements */
+.welcome-section,
+.venue-section,
+.gallery-section,
+.wishes-section,
+.final-section,
+.tl-card,
+.field input,
+.field textarea,
+.guest-name-field input {
+    background-image: linear-gradient(0deg, #E7DDCD, #E7DDCD) !important;
+}
+
+/* Dark-background elements */
+.btn-submit,
+.copy-toast {
+    background-image: linear-gradient(0deg, #404738, #404738) !important;
+}
+
+/* Semi-transparent background elements */
+.music-btn,
+.volume-slider-wrap {
+    background-image: linear-gradient(0deg, rgba(231, 221, 205, .92), rgba(231, 221, 205, .92)) !important;
+}
+
+/* Envelope gradients already act as background-image, safe */
+/* Hero overlay already uses linear-gradient, safe */
+
+/* Dress code swatches — force via nth-child */
+.dc-swatch:nth-child(1) { background-image: linear-gradient(0deg, #E7DDCD, #E7DDCD) !important; }
+.dc-swatch:nth-child(2) { background-image: linear-gradient(0deg, #CBB2A3, #CBB2A3) !important; }
+.dc-swatch:nth-child(3) { background-image: linear-gradient(0deg, #C9A38F, #C9A38F) !important; }
+.dc-swatch:nth-child(4) { background-image: linear-gradient(0deg, #B88F79, #B88F79) !important; }
+.dc-swatch:nth-child(5) { background-image: linear-gradient(0deg, #A7AF98, #A7AF98) !important; }
+.dc-swatch:nth-child(6) { background-image: linear-gradient(0deg, #7D856B, #7D856B) !important; }
+.dc-swatch:nth-child(7) { background-image: linear-gradient(0deg, #5D654F, #5D654F) !important; }
+.dc-swatch:nth-child(8) { background-image: linear-gradient(0deg, #404738, #404738) !important; }
+
+/* Lightbox buttons */
+.lb-close,
+.lb-prev,
+.lb-next {
+    background-image: linear-gradient(0deg, rgba(244, 238, 228, .12), rgba(244, 238, 228, .12)) !important;
+}
+
+/* Prevent any filter/invert on images, canvas, SVGs */
+img,
+canvas,
+svg {
+    filter: none !important;
+    -webkit-filter: none !important;
+}
+
+/* Text color protection — hardcoded hex values
+   -webkit-text-fill-color is often ignored by force-dark */
+.section-label,
+.hero-initial,
+.hero-name-first,
+.hero-name-second,
+.hero-name-and,
+.hero-amp,
+.hero-subtitle,
+.hero-date-text {
+    -webkit-text-fill-color: #2C2F25;
+}
+
+.welcome-text p,
+.wish-item p,
+.dresscode-text,
+.rsvp-intro,
+.tl-card p,
+.venue-address {
+    -webkit-text-fill-color: #2E2E26;
+}
+
+.countdown-num,
+.venue-name,
+.tl-card h4,
+.final-names {
+    -webkit-text-fill-color: #2C2F25;
+}
+
+.countdown-word,
+.dresscode-copy-hint,
+.final-date,
+.final-copy {
+    -webkit-text-fill-color: #7A7768;
+}
+
+.tl-time,
+.welcome-greeting,
+.welcome-sign span,
+.rsvp-intro strong,
+.rsvp-ok h3,
+.final-script {
+    -webkit-text-fill-color: #404738;
+}
+
+.dresscode-note,
+.countdown-date {
+    -webkit-text-fill-color: #4A4840;
+}
+
+.btn-submit {
+    -webkit-text-fill-color: #F4EEE4;
+}
+
+.field label,
+.countdown-word {
+    -webkit-text-fill-color: #7A7768;
+}
+
+.field input,
+.field select,
+.field textarea {
+    -webkit-text-fill-color: #2E2E26;
+}
+
+/* btn-map hover state */
+.btn-map {
+    background-image: linear-gradient(0deg, transparent, transparent) !important;
+}
+
 /* ═══════════════════════════════════════════════════
-   FORCE LIGHT MODE — Override browser auto-darkening
-   (Telegram WebView, Samsung Internet, Safari dark, etc.)
+   FORCE LIGHT MODE — CSS fallback for browsers that
+   DO respect prefers-color-scheme media query
    ═══════════════════════════════════════════════════ */
 
 /* Prevent forced-colors / High Contrast overrides */
