@@ -379,13 +379,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /* ═══════ COLOR COPY ═══════ */
     const copyToast = document.getElementById('copy-toast');
-    document.querySelectorAll('.dc-swatch').forEach(sw => {
-        sw.addEventListener('click', () => {
-            const color = sw.dataset.color; if (!color) return;
+    document.querySelectorAll('.dc-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+            const color = chip.dataset.color; if (!color) return;
             navigator.clipboard.writeText(color).then(() => {
                 copyToast.textContent = `${color} скопійовано!`;
-                copyToast.classList.add('is-show'); sw.classList.add('is-copied');
-                setTimeout(() => { copyToast.classList.remove('is-show'); sw.classList.remove('is-copied') }, 1800);
+                copyToast.classList.add('is-show'); chip.classList.add('is-copied');
+                setTimeout(() => { copyToast.classList.remove('is-show'); chip.classList.remove('is-copied') }, 1800);
             }).catch(() => {
                 const ta = document.createElement('textarea'); ta.value = color; ta.style.position = 'fixed'; ta.style.opacity = '0';
                 document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);

@@ -20,7 +20,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Jost:wght@200;300;400;500&family=Great+Vibes&family=Pinyon+Script&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=11">
+    <link rel="stylesheet" href="style.css?v=13">
 </head>
 
 <body>
@@ -350,35 +350,85 @@
                 <h2 class="section-label" data-anim="fade">Дрес-код</h2>
                 <p class="dresscode-text" data-anim="fade-up">Будемо вдячні, якщо ваш образ буде відповідати кольоровій
                     палітрі нашого свята</p>
+                <!-- Palette: 4×4 heart grid -->
                 <div class="dresscode-palette" data-anim="fade-up" data-delay="100">
-                    <svg class="dc-swatch" viewBox="0 0 24 24" data-color="#E7DDCD" data-label="Беж">
-                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#E7DDCD" />
-                    </svg>
-                    <svg class="dc-swatch" viewBox="0 0 24 24" data-color="#CBB2A3" data-label="Нюд">
-                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#CBB2A3" />
-                    </svg>
-                    <svg class="dc-swatch" viewBox="0 0 24 24" data-color="#C9A38F" data-label="Тауп">
-                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#C9A38F" />
-                    </svg>
-                    <svg class="dc-swatch" viewBox="0 0 24 24" data-color="#B88F79" data-label="Терракота">
-                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#B88F79" />
-                    </svg>
-                    <svg class="dc-swatch" viewBox="0 0 24 24" data-color="#A7AF98" data-label="Шавлія">
-                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#A7AF98" />
-                    </svg>
-                    <svg class="dc-swatch" viewBox="0 0 24 24" data-color="#7D856B" data-label="Олива">
-                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#7D856B" />
-                    </svg>
-                    <svg class="dc-swatch" viewBox="0 0 24 24" data-color="#5D654F" data-label="Темний мох">
-                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#5D654F" />
-                    </svg>
-                    <svg class="dc-swatch" viewBox="0 0 24 24" data-color="#404738" data-label="Глибокий ліс">
-                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#404738" />
-                    </svg>
+
+                    <!-- Row 1: Warm / Gold / Pink -->
+                    <div class="dc-chip" data-color="#F0E6D3">
+                        <svg class="dc-heart" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#F0E6D3" stroke="rgba(190,165,130,.35)" stroke-width=".5"/></svg>
+                        <span class="dc-label">Бежевий</span>
+                    </div>
+                    <div class="dc-chip" data-color="#D4AF6B">
+                        <svg class="dc-heart" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#D4AF6B"/></svg>
+                        <span class="dc-label">Золотий</span>
+                    </div>
+                    <div class="dc-chip" data-color="#F5D9D4">
+                        <svg class="dc-heart" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#F5D9D4" stroke="rgba(190,150,140,.3)" stroke-width=".5"/></svg>
+                        <span class="dc-label">Блідо рожевий</span>
+                    </div>
+                    <div class="dc-chip" data-color="#C9958E">
+                        <svg class="dc-heart" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#C9958E"/></svg>
+                        <span class="dc-label">Пильно рожевий</span>
+                    </div>
+
+                    <!-- Row 2: Nude / Peach / Terracotta transition -->
+                    <div class="dc-chip" data-color="#EED5C2">
+                        <svg class="dc-heart" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#EED5C2" stroke="rgba(185,148,120,.3)" stroke-width=".5"/></svg>
+                        <span class="dc-label">Нюд</span>
+                    </div>
+                    <div class="dc-chip" data-color="#E8B49A">
+                        <svg class="dc-heart" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#E8B49A"/></svg>
+                        <span class="dc-label">Персиковий</span>
+                    </div>
+                    <div class="dc-chip" data-color="#C47A62">
+                        <svg class="dc-heart" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#C47A62"/></svg>
+                        <span class="dc-label">Теракота</span>
+                    </div>
+                    <div class="dc-chip" data-color="#B08888">
+                        <svg class="dc-heart" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#B08888"/></svg>
+                        <span class="dc-label">Пилово рожевий</span>
+                    </div>
+
+                    <!-- Row 3: Coffee / Chocolate -->
+                    <div class="dc-chip" data-color="#8B5E3C">
+                        <svg class="dc-heart" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#8B5E3C"/></svg>
+                        <span class="dc-label">Кофейний</span>
+                    </div>
+                    <div class="dc-chip" data-color="#6B4226">
+                        <svg class="dc-heart" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#6B4226"/></svg>
+                        <span class="dc-label">Какао</span>
+                    </div>
+                    <div class="dc-chip" data-color="#A0714F">
+                        <svg class="dc-heart" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#A0714F"/></svg>
+                        <span class="dc-label">Шоколад світлий</span>
+                    </div>
+                    <div class="dc-chip" data-color="#3E2010">
+                        <svg class="dc-heart" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#3E2010"/></svg>
+                        <span class="dc-label">Шоколад темний</span>
+                    </div>
+
+                    <!-- Row 4: Green shades -->
+                    <div class="dc-chip" data-color="#D8ECD6">
+                        <svg class="dc-heart" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#D8ECD6" stroke="rgba(130,165,130,.3)" stroke-width=".5"/></svg>
+                        <span class="dc-label">Блідо зелений</span>
+                    </div>
+                    <div class="dc-chip" data-color="#A8CBA5">
+                        <svg class="dc-heart" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#A8CBA5"/></svg>
+                        <span class="dc-label">Пастельно зелений</span>
+                    </div>
+                    <div class="dc-chip" data-color="#7D856B">
+                        <svg class="dc-heart" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#7D856B"/></svg>
+                        <span class="dc-label">Оливковий</span>
+                    </div>
+                    <div class="dc-chip" data-color="#2D4A2D">
+                        <svg class="dc-heart" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#2D4A2D"/></svg>
+                        <span class="dc-label">Темно зелений</span>
+                    </div>
+
                 </div>
-                <p class="dresscode-note" data-anim="fade" data-delay="200">Просимо уникати білого кольору — він
+                <p class="dresscode-note" data-anim="fade" data-delay="300">Просимо уникати білого кольору — він
                     зарезервований для нареченої&nbsp;🤍</p>
-                <p class="dresscode-copy-hint" data-anim="fade" data-delay="250">Натисніть на колір, щоб скопіювати</p>
+                <p class="dresscode-copy-hint" data-anim="fade" data-delay="350">Натисніть на серце, щоб скопіювати колір</p>
             </div>
         </section>
 
