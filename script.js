@@ -266,134 +266,29 @@ document.addEventListener('DOMContentLoaded', () => {
         items.forEach(el => obs.observe(el));
     }
 
-    /* ═══════ DYNAMIC GALLERY ═══════ */
-    const galGrid = document.getElementById('gallery-grid');
-    const galSrcs = [];
 
-    function tryImg(n) {
-        return new Promise((resolve, reject) => {
-            function attempt(ei) {
-                if (ei >= IMG_EXT.length) { reject(); return }
-                const src = `images/${n}.${IMG_EXT[ei]}`;
-                const img = new Image();
-                img.onload = () => resolve(src);
-                img.onerror = () => attempt(ei + 1);
-                img.src = src;
-            }
-            attempt(0);
-        });
-    }
-
-    async function loadGallery() {
-        const promises = [];
-        for (let i = 1; i <= MAX_GALLERY; i++) {
-            promises.push(
-                tryImg(i)
-                    .then(src => ({ index: i, src }))
-                    .catch(() => null)
-            );
-        }
-        
-        const results = await Promise.all(promises);
-        const validResults = results.filter(Boolean).sort((a, b) => a.index - b.index);
-        
-        validResults.forEach(item => {
-            galSrcs.push(item.src);
-            const div = document.createElement('div');
-            div.className = 'gal-item';
-            div.dataset.index = galSrcs.length - 1;
-            const img = document.createElement('img');
-            img.src = item.src; 
-            img.alt = `Фото ${item.index}`; 
-            img.loading = 'lazy';
-            div.appendChild(img); 
-            galGrid.appendChild(div);
-            div.addEventListener('click', () => openLB(parseInt(div.dataset.index)));
-        });
-
-        if (!galSrcs.length) {
-            galGrid.innerHTML = '<p style="text-align:center;color:#7A7768;font-style:italic;padding:40px 0">Фото будуть додані пізніше...</p>';
-        }
-    }
-    loadGallery().then(() => {
-        let expandBtn = document.getElementById('gallery-expand-btn');
-        let wrapper = document.getElementById('gallery-wrapper');
-        let grid = document.getElementById('gallery-grid');
-        
-        // Self-healing for aggressively cached index.html
-        if (!wrapper && grid) {
-            wrapper = document.createElement('div');
-            wrapper.id = 'gallery-wrapper';
-            wrapper.className = 'gallery-wrapper gallery-collapsed';
-            grid.parentNode.insertBefore(wrapper, grid);
-            wrapper.appendChild(grid);
-            grid.classList.remove('gallery-collapsed');
-        }
-
-        if (expandBtn && wrapper) {
-            // Use photo count instead of scrollHeight which can be flaky with lazy-loaded images
-            if (galSrcs.length <= 6) {
-                expandBtn.style.display = 'none';
-                wrapper.classList.remove('gallery-collapsed');
+    /* ═══════ EXAMPLE OUTFIT TOGGLE ═══════ */
+    const btnExampleToggle = document.getElementById('btn-example-toggle');
+    const exampleBody = document.getElementById('dresscode-example-body');
+    if (btnExampleToggle && exampleBody) {
+        btnExampleToggle.addEventListener('click', () => {
+            const isOpen = exampleBody.classList.toggle('is-open');
+            btnExampleToggle.classList.toggle('is-open', isOpen);
+            btnExampleToggle.setAttribute('aria-expanded', isOpen);
+            exampleBody.setAttribute('aria-hidden', !isOpen);
+            if (isOpen) {
+                btnExampleToggle.querySelector('span') && (btnExampleToggle.querySelector('span').textContent = 'Сховати приклади');
             } else {
-                // Ensure initial state
-                wrapper.classList.add('gallery-collapsed');
-                expandBtn.classList.remove('is-expanded');
-                
-                // Add click listener safely
-                const oldBtn = expandBtn;
-                const newBtn = oldBtn.cloneNode(true);
-                oldBtn.parentNode.replaceChild(newBtn, oldBtn);
-                expandBtn = newBtn;
-                
-                expandBtn.addEventListener('click', () => {
-                    const isExpanded = !wrapper.classList.toggle('gallery-collapsed');
-                    if (isExpanded) {
-                        expandBtn.classList.add('is-expanded');
-                        expandBtn.querySelector('.gallery-expand-text').textContent = 'Згорнути';
-                    } else {
-                        expandBtn.classList.remove('is-expanded');
-                        expandBtn.querySelector('.gallery-expand-text').textContent = 'Розгорнути';
-                        document.getElementById('gallery').scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
-                });
+                btnExampleToggle.querySelector('span') && (btnExampleToggle.querySelector('span').textContent = 'Хочете побачити приклади образів?');
             }
-        }
-    });
-
-    /* ═══════ LIGHTBOX ═══════ */
-    const lb = document.getElementById('lightbox'), lbImg = document.getElementById('lb-img'), lbCnt = document.getElementById('lb-counter');
-    let curIdx = 0;
-    function openLB(i) { if (!galSrcs.length) return; curIdx = i; lbImg.src = galSrcs[i]; lbCnt.textContent = `${i + 1} / ${galSrcs.length}`; lb.classList.add('is-open'); document.body.style.overflow = 'hidden' }
-    function closeLB() { lb.classList.remove('is-open'); document.body.style.overflow = '' }
-    function prevLB() { curIdx = (curIdx - 1 + galSrcs.length) % galSrcs.length; lbImg.style.opacity = '0'; setTimeout(() => { lbImg.src = galSrcs[curIdx]; lbCnt.textContent = `${curIdx + 1} / ${galSrcs.length}`; lbImg.style.opacity = '1' }, 200) }
-    function nextLB() { curIdx = (curIdx + 1) % galSrcs.length; lbImg.style.opacity = '0'; setTimeout(() => { lbImg.src = galSrcs[curIdx]; lbCnt.textContent = `${curIdx + 1} / ${galSrcs.length}`; lbImg.style.opacity = '1' }, 200) }
-    document.getElementById('lb-close').addEventListener('click', closeLB);
-    document.getElementById('lb-prev').addEventListener('click', prevLB);
-    document.getElementById('lb-next').addEventListener('click', nextLB);
-    lb.addEventListener('click', e => { if (e.target === lb || e.target.classList.contains('lb-img-wrap')) closeLB() });
-    document.addEventListener('keydown', e => { if (!lb.classList.contains('is-open')) return; if (e.key === 'Escape') closeLB(); if (e.key === 'ArrowLeft') prevLB(); if (e.key === 'ArrowRight') nextLB() });
-    let touchX = 0;
-    lb.addEventListener('touchstart', e => { touchX = e.changedTouches[0].clientX }, { passive: true });
-    lb.addEventListener('touchend', e => { const d = e.changedTouches[0].clientX - touchX; if (Math.abs(d) > 50) d > 0 ? prevLB() : nextLB() }, { passive: true });
-
-    /* ═══════ COLOR COPY ═══════ */
-    const copyToast = document.getElementById('copy-toast');
-    document.querySelectorAll('.dc-chip').forEach(chip => {
-        chip.addEventListener('click', () => {
-            const color = chip.dataset.color; if (!color) return;
-            navigator.clipboard.writeText(color).then(() => {
-                copyToast.textContent = `${color} скопійовано!`;
-                copyToast.classList.add('is-show'); chip.classList.add('is-copied');
-                setTimeout(() => { copyToast.classList.remove('is-show'); chip.classList.remove('is-copied') }, 1800);
-            }).catch(() => {
-                const ta = document.createElement('textarea'); ta.value = color; ta.style.position = 'fixed'; ta.style.opacity = '0';
-                document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
-                copyToast.textContent = `${color} скопійовано!`; copyToast.classList.add('is-show');
-                setTimeout(() => copyToast.classList.remove('is-show'), 1800);
-            });
         });
-    });
+    }
+
+
+
+
+    /* ═══════ COLOR COPY (removed — dc-chip palette replaced with bars) ═══════ */
+
 
     /* ═══════ DYNAMIC GUEST FIELDS ═══════ */
     const guestSel = document.getElementById('f-guests'), guestBox = document.getElementById('guest-names-container');

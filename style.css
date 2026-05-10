@@ -1092,111 +1092,223 @@ button {
     color: rgba(244, 238, 228, .5)
 }
 
-/* ── DRESS CODE ── */
+/* ── DRESS CODE — gradient bars ── */
 .dresscode-section {
     background: var(--ivory);
-    text-align: center
+    text-align: center;
 }
 
 .dresscode-text {
     font-family: var(--font-serif);
     font-size: 1.15rem;
     color: var(--text);
-    max-width: 480px;
-    margin: 0 auto 36px;
-    line-height: 1.8
-}
-
-/* Palette: 4-column heart grid */
-.dresscode-palette {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px 8px;
-    max-width: 360px;
-    margin: 0 auto 32px;
-}
-
-/* Individual chip: heart + label */
-.dc-chip {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 7px;
-    cursor: pointer;
-    transition: transform .35s var(--ease);
-}
-
-.dc-chip:hover {
-    transform: translateY(-5px);
-}
-
-.dc-chip:active {
-    transform: scale(.9);
-}
-
-/* Heart SVG */
-.dc-heart {
-    width: 64px;
-    height: 64px;
-    filter: drop-shadow(0 3px 7px rgba(64, 71, 56, .18));
-    transition: filter .35s var(--ease), transform .35s var(--ease);
-    overflow: visible;
-}
-
-.dc-chip:hover .dc-heart {
-    filter: drop-shadow(0 6px 14px rgba(64, 71, 56, .28));
-}
-
-.dc-chip.is-copied .dc-heart {
-    animation: heartCopied .55s var(--ease);
-}
-
-@keyframes heartCopied {
-    0%   { transform: scale(1.22) rotate(-5deg); }
-    40%  { transform: scale(.88) rotate(3deg); }
-    100% { transform: scale(1) rotate(0deg); }
-}
-
-/* Always-visible label under heart */
-.dc-label {
-    font-family: var(--font-sans);
-    font-size: .65rem;
-    font-weight: 400;
-    color: var(--text-soft);
-    letter-spacing: .02em;
-    text-align: center;
-    line-height: 1.3;
-    pointer-events: none;
-    user-select: none;
+    max-width: 680px;
+    margin: -16px auto 36px;
+    line-height: 1.8;
+    font-style: italic;
 }
 
 .dresscode-note {
     font-size: .88rem;
     color: var(--text-soft);
     font-style: italic;
-    margin-top: 4px;
+    margin-top: 16px;
+    margin-bottom: 0;
 }
 
-.dresscode-copy-hint {
-    font-size: .72rem;
+.dresscode-note + .dresscode-note {
+    margin-top: 10px;
+}
+
+/* 3-column bar layout */
+.dresscode-bars {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    max-width: 680px;
+    margin: 0 auto 40px;
+}
+
+/* Each column = title + bar + labels side-by-side */
+.dc-bar-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.dc-bar-title {
+    font-family: var(--font-sans);
+    font-size: .6rem;
+    font-weight: 400;
+    letter-spacing: .12em;
+    text-transform: uppercase;
     color: var(--text-muted);
-    margin-top: 8px;
-    letter-spacing: .06em;
+    text-align: center;
+    line-height: 1.4;
+    width: 100%;
 }
 
-@media (max-width: 380px) {
-    .dresscode-palette {
-        gap: 16px 4px;
-        max-width: 300px;
+/* Bar + label list side by side */
+.dc-bar-inner {
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+    width: 100%;
+}
+
+/* The actual gradient pill */
+.dc-bar {
+    width: 52px;
+    flex-shrink: 0;
+    border-radius: 18px;
+    min-height: 260px;
+    box-shadow: 0 6px 24px rgba(64, 71, 56, .15);
+    transition: transform .4s var(--ease), box-shadow .4s;
+    position: relative;
+}
+
+.dc-bar:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 36px rgba(64, 71, 56, .2);
+}
+
+/* Labels column to the right of the bar */
+.dc-bar-labels {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    padding: 4px 0;
+    flex: 1;
+    min-width: 0;
+}
+
+.dc-bar-dot-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Small dash that points from bar to label */
+.dc-bar-dot {
+    width: 12px;
+    height: 1px;
+    background: var(--beige-mid);
+    flex-shrink: 0;
+}
+
+.dc-bar-dot-label {
+    font-family: var(--font-sans);
+    font-size: .68rem;
+    font-weight: 400;
+    color: var(--text-soft);
+    letter-spacing: .01em;
+    line-height: 1.35;
+    white-space: normal;
+    word-break: break-word;
+}
+
+/* ── Example outfit photo (toggle) ── */
+.dresscode-example {
+    margin: 36px auto 0;
+    max-width: 480px;
+    text-align: center;
+}
+
+/* Toggle button */
+.btn-example-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 28px;
+    border: 1.5px solid var(--olive);
+    border-radius: 50px;
+    background: transparent;
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    font-weight: 400;
+    letter-spacing: .04em;
+    color: var(--dark);
+    cursor: pointer;
+    transition: all .35s var(--ease);
+}
+
+.btn-example-toggle:hover {
+    background: var(--forest);
+    color: var(--ivory);
+    border-color: var(--forest);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(64, 71, 56, .18);
+}
+
+.btn-example-toggle svg {
+    transition: transform .4s var(--ease);
+    flex-shrink: 0;
+}
+
+.btn-example-toggle.is-open svg {
+    transform: rotate(180deg);
+}
+
+/* Collapsible image area */
+.dresscode-example-body {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height .7s cubic-bezier(.4, 0, .2, 1), opacity .5s ease, margin .5s ease;
+    opacity: 0;
+    margin-top: 0;
+}
+
+.dresscode-example-body.is-open {
+    max-height: 900px;
+    opacity: 1;
+    margin-top: 20px;
+}
+
+.dresscode-example-img-wrap {
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(64, 71, 56, .14);
+    border: 1px solid rgba(167, 175, 152, .2);
+}
+
+.dresscode-example-img-wrap img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: transform .6s var(--ease);
+}
+
+.dresscode-example-img-wrap:hover img {
+    transform: scale(1.02);
+}
+
+/* Responsive */
+@media (max-width: 520px) {
+    .dresscode-bars {
+        gap: 12px;
     }
-    .dc-heart {
-        width: 54px;
-        height: 54px;
+    .dc-bar {
+        width: 38px;
+        min-height: 220px;
+        border-radius: 14px;
     }
-    .dc-label {
-        font-size: .6rem;
+    .dc-bar-dot-label {
+        font-size: .62rem;
+    }
+    .dc-bar-dot {
+        width: 8px;
+    }
+    .dc-bar-title {
+        font-size: .55rem;
+    }
+    .dc-bar-inner {
+        gap: 6px;
     }
 }
+
 
 /* ── WISHES ── */
 .wishes-section {
@@ -1548,9 +1660,41 @@ button {
     font-family: var(--font-serif);
     font-size: 1.6rem;
     color: var(--olive);
-    margin-bottom: 8px;
+    margin-bottom: 24px;
     font-style: italic;
     font-weight: 300
+}
+
+/* Polaroid Photo Frame */
+.final-polaroid {
+    display: flex;
+    justify-content: center;
+    margin: 0 auto 36px;
+    max-width: 300px;
+    perspective: 1000px;
+}
+
+.polaroid-frame {
+    background: var(--ivory);
+    padding: 12px 12px 40px 12px;
+    box-shadow: 0 12px 32px rgba(64, 71, 56, 0.18), inset 0 0 0 1px rgba(167, 175, 152, 0.2);
+    border-radius: 3px;
+    transform: rotate(-3deg);
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
+}
+
+.polaroid-frame:hover {
+    transform: rotate(1deg) scale(1.03);
+}
+
+.polaroid-frame img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 2px;
+    /* optional: slightly warm up the photo to match the site's beige vibe */
+    filter: sepia(0.1) contrast(1.02);
 }
 
 .final-names {
