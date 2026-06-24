@@ -176,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const volSlider = document.getElementById('volume-slider');
 
     let envelopeTimer = null;
-    let secondsLeft = 10;
+    let secondsLeft = 5;
 
     function openEnvelope() {
         if (envelope.classList.contains('is-open')) return;

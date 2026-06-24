@@ -512,7 +512,7 @@ button {
     width: 100%;
     background: var(--olive);
     transform-origin: left center;
-    animation: shrinkProgress 10s linear forwards;
+    animation: shrinkProgress 5s linear forwards;
 }
 
 @keyframes shrinkProgress {
