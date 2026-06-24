@@ -175,8 +175,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const volWrap = document.getElementById('volume-slider-wrap');
     const volSlider = document.getElementById('volume-slider');
 
+    let envelopeTimer = null;
+    let secondsLeft = 10;
+
     function openEnvelope() {
         if (envelope.classList.contains('is-open')) return;
+        
+        if (envelopeTimer) {
+            clearInterval(envelopeTimer);
+            envelopeTimer = null;
+        }
+
         envelope.classList.add('is-open');
         tryPlayMusic();
         setTimeout(() => {
@@ -198,6 +207,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     envelope.addEventListener('click', openEnvelope);
     document.body.style.overflow = 'hidden';
+
+    // Auto-open countdown timer (10 seconds)
+    const secondsEl = document.getElementById('hint-seconds');
+    envelopeTimer = setInterval(() => {
+        secondsLeft--;
+        if (secondsEl) {
+            secondsEl.textContent = secondsLeft;
+        }
+        if (secondsLeft <= 0) {
+            clearInterval(envelopeTimer);
+            envelopeTimer = null;
+            openEnvelope();
+        }
+    }, 1000);
 
     /* ═══════ MUSIC + VOLUME ═══════ */
     let isMuted = true;
