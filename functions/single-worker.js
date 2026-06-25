@@ -48,6 +48,46 @@ export default {
     }
 };
 
+// --- HELPER FUNCTIONS FOR NO-CONFIG DATABASE ---
+async function getKV(appKey, key) {
+    try {
+        const res = await fetch(`https://keyvalue.immanuel.co/api/KeyVal/GetValue/${appKey}/${key}`);
+        if (!res.ok) return null;
+        const text = await res.text();
+        if (!text || text === "null" || text === '""') return null;
+        
+        // Parse the outer quotes returned by ASP.NET API
+        const parsedStr = JSON.parse(text);
+        
+        // Try parsing inner JSON if it is JSON
+        try {
+            return JSON.parse(parsedStr);
+        } catch (e) {
+            return parsedStr;
+        }
+    } catch (err) {
+        console.error("getKV error:", err);
+        return null;
+    }
+}
+
+async function setKV(appKey, key, value) {
+    try {
+        const valStr = typeof value === "object" ? JSON.stringify(value) : String(value);
+        const encoded = encodeURIComponent(valStr);
+        const res = await fetch(`https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${appKey}/${key}/${encoded}`, {
+            method: "POST",
+            headers: {
+                "Content-Length": "0"
+            }
+        });
+        return res.ok;
+    } catch (err) {
+        console.error("setKV error:", err);
+        return false;
+    }
+}
+
 // --- RSVP HANDLER ---
 async function handleRSVP(request, env, corsHeaders) {
     const body = await request.json();
@@ -86,23 +126,31 @@ async function handleRSVP(request, env, corsHeaders) {
         timestamp: new Date().toISOString()
     };
 
-    // Save to Cloudflare KV
+    // Save to database
     if (env.RSVP_DB) {
+        // Native Cloudflare KV
         const id = `rsvp:${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
         await env.RSVP_DB.put(id, JSON.stringify(rsvpData));
     } else if (env.TELEGRAM_CHAT_ID) {
-        // Fallback to kvdb.io
+        // Fallback to keyvalue.immanuel.co
         const cleanChatId = Math.abs(parseInt(env.TELEGRAM_CHAT_ID, 10));
         if (!isNaN(cleanChatId)) {
-            const id = `rsvp_${Date.now()}`;
-            try {
-                await fetch(`https://kvdb.io/rsvp_bot_${cleanChatId}/${id}`, {
-                    method: "POST",
-                    body: JSON.stringify(rsvpData)
-                });
-            } catch (e) {
-                console.error("kvdb.io write error:", e);
+            const appKey = `rsvp_bot_${cleanChatId}`;
+            
+            // 1. Get index of existing records
+            let indexStr = await getKV(appKey, "index");
+            let keys = [];
+            if (indexStr) {
+                keys = indexStr.split(",").filter(k => k.trim().length > 0);
             }
+            
+            // 2. Generate new key and append to index
+            const newKey = `rsvp_${Date.now()}`;
+            keys.push(newKey);
+            
+            // 3. Save new index and guest record
+            await setKV(appKey, "index", keys.join(","));
+            await setKV(appKey, newKey, rsvpData);
         }
     }
 
@@ -179,6 +227,7 @@ async function handleBotWebhook(request, env) {
     // Fetch records
     const rsvps = [];
     if (env.RSVP_DB) {
+        // Native Cloudflare KV
         const list = await env.RSVP_DB.list({ prefix: "rsvp:" });
         for (const key of list.keys) {
             const valStr = await env.RSVP_DB.get(key.name);
@@ -187,18 +236,23 @@ async function handleBotWebhook(request, env) {
             }
         }
     } else if (env.TELEGRAM_CHAT_ID) {
+        // Fallback to keyvalue.immanuel.co
         const cleanChatId = Math.abs(parseInt(env.TELEGRAM_CHAT_ID, 10));
         if (!isNaN(cleanChatId)) {
-            try {
-                const kvRes = await fetch(`https://kvdb.io/rsvp_bot_${cleanChatId}/?values=true`);
-                if (kvRes.ok) {
-                    const kvData = await kvRes.json();
-                    for (const pair of kvData) {
-                        try { rsvps.push(JSON.parse(pair[1])); } catch (e) {}
+            const appKey = `rsvp_bot_${cleanChatId}`;
+            
+            // 1. Get index of existing records
+            let indexStr = await getKV(appKey, "index");
+            if (indexStr) {
+                const keys = indexStr.split(",").filter(k => k.trim().length > 0);
+                
+                // 2. Fetch all guest records
+                for (const key of keys) {
+                    const data = await getKV(appKey, key);
+                    if (data) {
+                        rsvps.push(data);
                     }
                 }
-            } catch (e) {
-                console.error("kvdb.io read error:", e);
             }
         }
     }
