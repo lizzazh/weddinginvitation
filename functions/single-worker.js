@@ -17,7 +17,7 @@ export default {
         try {
             // Route 0: Diagnostic Version (GET /api/version or GET /version)
             if (url.pathname === "/api/version" || url.pathname === "/version") {
-                return new Response(JSON.stringify({ version: "1.1.0-base64" }), {
+                return new Response(JSON.stringify({ version: "1.2.0-chunked" }), {
                     headers: { "Content-Type": "application/json", ...corsHeaders }
                 });
             }
