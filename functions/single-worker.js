@@ -15,6 +15,13 @@ export default {
         }
 
         try {
+            // Route 0: Diagnostic Version (GET /api/version or GET /version)
+            if (url.pathname === "/api/version" || url.pathname === "/version") {
+                return new Response(JSON.stringify({ version: "1.1.0-base64" }), {
+                    headers: { "Content-Type": "application/json", ...corsHeaders }
+                });
+            }
+
             // Route 1: Set Webhook (GET /api/set-webhook or GET /set-webhook)
             if (url.pathname === "/api/set-webhook" || url.pathname === "/set-webhook") {
                 return await handleSetWebhook(request, env, corsHeaders);
