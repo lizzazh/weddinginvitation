@@ -39,21 +39,35 @@ export async function onRequestPost(context) {
             return new Response("OK", { status: 200 });
         }
         
-        if (!env.RSVP_DB) {
-            await sendTelegramMessage(env.TELEGRAM_BOT_TOKEN, chatId, "⚠️ База даних RSVP_DB не підключена. Будь ласка, створіть та підключіть KV namespace у налаштуваннях Cloudflare Pages.");
-            return new Response("OK", { status: 200 });
-        }
-        
-        // Fetch all records
-        const list = await env.RSVP_DB.list({ prefix: "rsvp:" });
         const rsvps = [];
-        for (const key of list.keys) {
-            const valStr = await env.RSVP_DB.get(key.name);
-            if (valStr) {
+        
+        if (env.RSVP_DB) {
+            // Fetch all records from Cloudflare KV
+            const list = await env.RSVP_DB.list({ prefix: "rsvp:" });
+            for (const key of list.keys) {
+                const valStr = await env.RSVP_DB.get(key.name);
+                if (valStr) {
+                    try {
+                        rsvps.push(JSON.parse(valStr));
+                    } catch (e) {}
+                }
+            }
+        } else if (env.TELEGRAM_CHAT_ID) {
+            // Fallback: Fetch all records from kvdb.io based on Chat ID
+            const cleanChatId = Math.abs(parseInt(env.TELEGRAM_CHAT_ID, 10));
+            if (!isNaN(cleanChatId)) {
                 try {
-                    rsvps.push(JSON.parse(valStr));
+                    const kvRes = await fetch(`https://kvdb.io/rsvp_bot_${cleanChatId}/?values=true`);
+                    if (kvRes.ok) {
+                        const kvData = await kvRes.json();
+                        for (const pair of kvData) {
+                            try {
+                                rsvps.push(JSON.parse(pair[1]));
+                            } catch (e) {}
+                        }
+                    }
                 } catch (e) {
-                    // Ignore malformed JSON
+                    console.error("kvdb.io read error:", e);
                 }
             }
         }
