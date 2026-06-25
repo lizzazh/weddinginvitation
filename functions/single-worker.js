@@ -86,6 +86,20 @@ async function setKV(appKey, key, value) {
     }
 }
 
+// --- BASE64URL HELPER FUNCTIONS FOR IIS SAFE PATHS ---
+function base64encode(str) {
+    const b64 = btoa(unescape(encodeURIComponent(str)));
+    return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+function base64decode(b64url) {
+    let b64 = b64url.replace(/-/g, "+").replace(/_/g, "/");
+    while (b64.length % 4) {
+        b64 += "=";
+    }
+    return decodeURIComponent(escape(atob(b64)));
+}
+
 // --- RSVP HANDLER ---
 async function handleRSVP(request, env, corsHeaders) {
     const body = await request.json();
@@ -146,9 +160,10 @@ async function handleRSVP(request, env, corsHeaders) {
             const newKey = `rsvp_${Date.now()}`;
             keys.push(newKey);
             
-            // 3. Save new index and guest record
+            // 3. Save new index and guest record (Base64url encoded to avoid dangerous IIS path characters)
             await setKV(appKey, "index", keys.join(","));
-            await setKV(appKey, newKey, rsvpData);
+            const base64Data = base64encode(JSON.stringify(rsvpData));
+            await setKV(appKey, newKey, base64Data);
         }
     }
 
@@ -249,7 +264,17 @@ async function handleBotWebhook(request, env) {
                     if (!key.startsWith("rsvp_")) continue;
                     const data = await getKV(appKey, key);
                     if (data) {
-                        rsvps.push(data);
+                        try {
+                            let parsed;
+                            if (typeof data === "string" && !data.trim().startsWith("{")) {
+                                parsed = JSON.parse(base64decode(data));
+                            } else {
+                                parsed = typeof data === "object" ? data : JSON.parse(data);
+                            }
+                            rsvps.push(parsed);
+                        } catch (e) {
+                            console.error("Parse error for key", key, e);
+                        }
                     }
                 }
             }
