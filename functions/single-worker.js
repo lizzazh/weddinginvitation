@@ -246,6 +246,7 @@ async function handleBotWebhook(request, env) {
                 
                 // 2. Fetch all guest records
                 for (const key of keys) {
+                    if (!key.startsWith("rsvp_")) continue;
                     const data = await getKV(appKey, key);
                     if (data) {
                         rsvps.push(data);
