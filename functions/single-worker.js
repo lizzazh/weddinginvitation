@@ -77,9 +77,7 @@ async function setKV(appKey, key, value) {
         const encoded = encodeURIComponent(valStr);
         const res = await fetch(`https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${appKey}/${key}/${encoded}`, {
             method: "POST",
-            headers: {
-                "Content-Length": "0"
-            }
+            body: "1" // Passing a non-empty string body forces Cloudflare to set Content-Length: 1, avoiding HTTP 411 Length Required error from keyvalue.immanuel.co
         });
         return res.ok;
     } catch (err) {
