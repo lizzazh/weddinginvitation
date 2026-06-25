@@ -27,6 +27,20 @@ export async function onRequestPost(context) {
             );
         }
 
+        // Save RSVP to KV database (if configured)
+        if (env.RSVP_DB) {
+            const id = `rsvp:${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+            await env.RSVP_DB.put(id, JSON.stringify({
+                fullName,
+                attendance,
+                guests,
+                transfer,
+                cottage,
+                comment: displayComment,
+                timestamp: new Date().toISOString()
+            }));
+        }
+
         // Clean up cottage info prefix from comment if it was passed natively
         let displayComment = comment;
         if (cottage && displayComment.startsWith(`[Будиночок: ${cottage}]`)) {
