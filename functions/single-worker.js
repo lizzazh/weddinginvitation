@@ -107,6 +107,67 @@ function base64decode(b64url) {
     return decodeURIComponent(escape(atob(b64)));
 }
 
+async function setKVLarge(appKey, key, value) {
+    try {
+        const valStr = typeof value === "object" ? JSON.stringify(value) : String(value);
+        const base64Data = base64encode(valStr);
+        const chunkSize = 150;
+        let i = 0;
+        while (i * chunkSize < base64Data.length) {
+            const chunk = base64Data.substring(i * chunkSize, (i + 1) * chunkSize);
+            const success = await setKV(appKey, `${key}_${i}`, chunk);
+            if (!success) return false;
+            i++;
+        }
+        await setKV(appKey, `${key}_${i}`, "");
+        return true;
+    } catch (err) {
+        console.error("setKVLarge error:", err);
+        return false;
+    }
+}
+
+async function getKVLarge(appKey, key) {
+    try {
+        let base64Data = "";
+        let i = 0;
+        const firstChunk = await getKV(appKey, `${key}_0`);
+        if (firstChunk === null) {
+            // Fallback for old keys that are not chunked/encoded
+            const rawVal = await getKV(appKey, key);
+            if (rawVal) {
+                try {
+                    return typeof rawVal === "object" ? rawVal : JSON.parse(rawVal);
+                } catch (e) {
+                    return rawVal;
+                }
+            }
+            return null;
+        }
+        
+        base64Data = firstChunk;
+        i = 1;
+        while (true) {
+            const chunk = await getKV(appKey, `${key}_${i}`);
+            if (!chunk || chunk === "" || chunk === "null") {
+                break;
+            }
+            base64Data += chunk;
+            i++;
+        }
+        
+        const valStr = base64decode(base64Data);
+        try {
+            return JSON.parse(valStr);
+        } catch (e) {
+            return valStr;
+        }
+    } catch (err) {
+        console.error("getKVLarge error:", err);
+        return null;
+    }
+}
+
 // --- RSVP HANDLER ---
 async function handleRSVP(request, env, corsHeaders) {
     const body = await request.json();
@@ -167,10 +228,9 @@ async function handleRSVP(request, env, corsHeaders) {
             const newKey = `rsvp_${Date.now()}`;
             keys.push(newKey);
             
-            // 3. Save new index and guest record (Base64url encoded to avoid dangerous IIS path characters)
+            // 3. Save new index and guest record (Using chunked Base64url to bypass IIS path segment length limits and dangerous characters)
             await setKV(appKey, "index", keys.join(","));
-            const base64Data = base64encode(JSON.stringify(rsvpData));
-            await setKV(appKey, newKey, base64Data);
+            await setKVLarge(appKey, newKey, rsvpData);
         }
     }
 
@@ -269,19 +329,9 @@ async function handleBotWebhook(request, env) {
                 // 2. Fetch all guest records
                 for (const key of keys) {
                     if (!key.startsWith("rsvp_")) continue;
-                    const data = await getKV(appKey, key);
+                    const data = await getKVLarge(appKey, key);
                     if (data) {
-                        try {
-                            let parsed;
-                            if (typeof data === "string" && !data.trim().startsWith("{")) {
-                                parsed = JSON.parse(base64decode(data));
-                            } else {
-                                parsed = typeof data === "object" ? data : JSON.parse(data);
-                            }
-                            rsvps.push(parsed);
-                        } catch (e) {
-                            console.error("Parse error for key", key, e);
-                        }
+                        rsvps.push(data);
                     }
                 }
             }
