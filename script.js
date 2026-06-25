@@ -342,14 +342,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const attendance = fd.get('attend') === 'yes' ? 'Так, з радістю!' : 'На жаль, ні';
         const transferVal = fd.get('transfer') === 'yes' ? 'Так, потрібен' : 'Ні, самостійно';
+        const cottageVal = fd.get('cottage') === 'yes' ? 'Так, плануємо' : 'Ні';
         const guestsStr = gc === 0 ? 'Тільки я' : '+' + gc + (gn.length ? ' (' + gn.join(', ') + ')' : '');
+
+        let finalComment = fd.get('comment') || '';
+        const cottagePrefix = `[Будиночок: ${cottageVal}]`;
+        if (finalComment) {
+            finalComment = `${cottagePrefix} ${finalComment}`;
+        } else {
+            finalComment = cottagePrefix;
+        }
 
         const payload = {
             fullName: fd.get('name') || '',
             attendance: attendance,
             guests: guestsStr,
             transfer: transferVal,
-            comment: fd.get('comment') || ''
+            cottage: cottageVal,
+            comment: finalComment
         };
 
         try {

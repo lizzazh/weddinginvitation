@@ -8,6 +8,7 @@ export async function onRequestPost(context) {
             attendance = "",
             guests = "",
             transfer = "",
+            cottage = "",
             comment = ""
         } = body;
 
@@ -26,6 +27,14 @@ export async function onRequestPost(context) {
             );
         }
 
+        // Clean up cottage info prefix from comment if it was passed natively
+        let displayComment = comment;
+        if (cottage && displayComment.startsWith(`[Будиночок: ${cottage}]`)) {
+            displayComment = displayComment.replace(`[Будиночок: ${cottage}]`, "").trim();
+        } else if (displayComment.startsWith("[Будиночок:")) {
+            displayComment = displayComment.replace(/^\[Будиночок:[^\]]+\]\s*/, "");
+        }
+
         const telegramMessage = [
             "💍 Нова відповідь на весільне запрошення",
             "",
@@ -33,7 +42,8 @@ export async function onRequestPost(context) {
             `✅ Присутність: ${attendance}`,
             `👥 Хто буде разом: ${guests || "—"}`,
             `🚗 Трансфер: ${transfer || "—"}`,
-            `💬 Коментар: ${comment || "—"}`
+            `🏠 Будиночок: ${cottage || "—"}`,
+            `💬 Коментар: ${displayComment || "—"}`
         ].join("\n");
 
         const telegramResponse = await fetch(
