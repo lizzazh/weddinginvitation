@@ -17,7 +17,7 @@ export default {
         try {
             // Route 0: Diagnostic Version (GET /api/version or GET /version)
             if (url.pathname === "/api/version" || url.pathname === "/version") {
-                return new Response(JSON.stringify({ version: "1.2.0-chunked" }), {
+                return new Response(JSON.stringify({ version: "1.3.0-visitors" }), {
                     headers: { "Content-Type": "application/json", ...corsHeaders }
                 });
             }
@@ -32,7 +32,12 @@ export default {
                 return await handleBotWebhook(request, env);
             }
 
-            // Route 3: RSVP Form Submission (POST / or POST /api/rsvp)
+            // Route 3: Visit Tracking (POST /api/visit)
+            if (request.method === "POST" && url.pathname === "/api/visit") {
+                return await handleVisit(request, env, corsHeaders);
+            }
+
+            // Route 4: RSVP Form Submission (POST / or POST /api/rsvp)
             if (request.method === "POST" && (url.pathname === "/" || url.pathname === "/api/rsvp")) {
                 return await handleRSVP(request, env, corsHeaders);
             }
@@ -298,7 +303,8 @@ async function handleBotWebhook(request, env) {
             "📋 /guests — список гостей, які прийдуть",
             "🏠 /cottages — список тих, кому потрібен будиночок",
             "🚗 /transfers — список тих, кому потрібен трансфер",
-            "❌ /absent — список тих, хто не зможе прийти"
+            "❌ /absent — список тих, хто не зможе прийти",
+            "👁 /visitors — статистика відвідувань сайту"
         ].join("\n");
         await sendTelegramMessage(env.TELEGRAM_BOT_TOKEN, chatId, helpMsg);
         return new Response("OK", { status: 200 });
@@ -437,6 +443,9 @@ async function handleBotWebhook(request, env) {
             await sendTelegramMessage(env.TELEGRAM_BOT_TOKEN, chatId, msg);
         }
     }
+    else if (text.startsWith("/visitors")) {
+        await handleVisitorsCommand(env, chatId);
+    }
 
     return new Response("OK", { status: 200 });
 }
@@ -471,4 +480,115 @@ async function sendTelegramMessage(token, chatId, text) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ chat_id: chatId, text, parse_mode: "Markdown" })
     });
+}
+
+// --- VISIT TRACKING HANDLER ---
+async function handleVisit(request, env, corsHeaders) {
+    try {
+        const body = await request.json();
+        const visitorId = body.visitorId || "unknown";
+        const ua = request.headers.get("User-Agent") || "unknown";
+        const now = new Date().toISOString();
+
+        // Determine device type from User-Agent
+        let device = "Desktop";
+        if (/mobile|android|iphone|ipad/i.test(ua)) {
+            device = /ipad/i.test(ua) ? "Tablet" : "Mobile";
+        }
+
+        const visitEntry = {
+            id: visitorId,
+            ts: now,
+            device: device
+        };
+
+        const cleanChatId = Math.abs(parseInt(env.TELEGRAM_CHAT_ID, 10));
+        if (!isNaN(cleanChatId)) {
+            const appKey = `rsvp_bot_${cleanChatId}`;
+            
+            // Get existing visits list
+            let visits = await getKVLarge(appKey, "visits_log");
+            if (!visits || !Array.isArray(visits)) {
+                visits = [];
+            }
+            
+            visits.push(visitEntry);
+            
+            // Save updated visits list
+            await setKVLarge(appKey, "visits_log", visits);
+        }
+
+        return new Response(
+            JSON.stringify({ success: true }),
+            { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        );
+    } catch (error) {
+        return new Response(
+            JSON.stringify({ success: false, message: error.message }),
+            { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        );
+    }
+}
+
+// --- VISITORS COMMAND HANDLER ---
+async function handleVisitorsCommand(env, chatId) {
+    const cleanChatId = Math.abs(parseInt(env.TELEGRAM_CHAT_ID, 10));
+    if (isNaN(cleanChatId)) {
+        await sendTelegramMessage(env.TELEGRAM_BOT_TOKEN, chatId, "⚠️ Помилка конфігурації.");
+        return;
+    }
+
+    const appKey = `rsvp_bot_${cleanChatId}`;
+    let visits = await getKVLarge(appKey, "visits_log");
+    
+    if (!visits || !Array.isArray(visits) || visits.length === 0) {
+        await sendTelegramMessage(env.TELEGRAM_BOT_TOKEN, chatId, "👁 Поки що ніхто не відвідав сайт.");
+        return;
+    }
+
+    const totalVisits = visits.length;
+    const uniqueIds = new Set(visits.map(v => v.id));
+    const uniqueCount = uniqueIds.size;
+    
+    // Count devices
+    let mobileCount = 0;
+    let desktopCount = 0;
+    let tabletCount = 0;
+    for (const v of visits) {
+        if (v.device === "Mobile") mobileCount++;
+        else if (v.device === "Tablet") tabletCount++;
+        else desktopCount++;
+    }
+
+    // Today's visits
+    const todayStr = new Date().toISOString().substring(0, 10);
+    const todayVisits = visits.filter(v => v.ts && v.ts.substring(0, 10) === todayStr).length;
+
+    // Recent 20 visits
+    const recent = visits.slice(-20).reverse();
+    let recentLines = "";
+    recent.forEach((v, idx) => {
+        const date = v.ts ? new Date(v.ts) : null;
+        const dateStr = date 
+            ? `${String(date.getDate()).padStart(2, "0")}.${String(date.getMonth() + 1).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}` 
+            : "?";
+        const deviceEmoji = v.device === "Mobile" ? "📱" : v.device === "Tablet" ? "📋" : "💻";
+        const shortId = v.id ? v.id.substring(0, 8) : "?";
+        recentLines += `${deviceEmoji} \`${shortId}\` — ${dateStr}\n`;
+    });
+
+    const msg = [
+        "👁 Статистика відвідувань сайту:",
+        "",
+        `📊 Всього переглядів: *${totalVisits}*`,
+        `👤 Унікальних відвідувачів: *${uniqueCount}*`,
+        `📅 Сьогодні: *${todayVisits}*`,
+        "",
+        `📱 Мобільних: ${mobileCount}  |  💻 Десктоп: ${desktopCount}${tabletCount > 0 ? `  |  📋 Планшет: ${tabletCount}` : ""}`,
+        "",
+        "🕐 Останні відвідування:",
+        recentLines
+    ].join("\n");
+
+    await sendTelegramMessage(env.TELEGRAM_BOT_TOKEN, chatId, msg);
 }

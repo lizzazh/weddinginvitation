@@ -10,6 +10,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const MAX_GALLERY = 50;
     const IMG_EXT = ['jpg', 'jpeg', 'png', 'webp'];
 
+    /* ═══════ VISITOR TRACKING ═══════ */
+    (function trackVisit() {
+        try {
+            let visitorId = localStorage.getItem('wedding_visitor_id');
+            if (!visitorId) {
+                visitorId = 'v_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('wedding_visitor_id', visitorId);
+            }
+            fetch('https://wedding-rsvp.liza-zhizhikinadt.workers.dev/api/visit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ visitorId: visitorId })
+            }).catch(() => {});
+        } catch (e) {}
+    })();
+
     /* ═══════ FALLING ROSE PETALS — envelope screen only ═══════ */
     const petalCanvas = document.getElementById('petals-canvas');
     const pCtx = petalCanvas.getContext('2d');
