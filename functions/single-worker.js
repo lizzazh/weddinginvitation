@@ -17,7 +17,7 @@ export default {
         try {
             // Route 0: Diagnostic Version (GET /api/version or GET /version)
             if (url.pathname === "/api/version" || url.pathname === "/version") {
-                return new Response(JSON.stringify({ version: "1.4.0-fix" }), {
+                return new Response(JSON.stringify({ version: "1.4.1-kyiv" }), {
                     headers: { "Content-Type": "application/json", ...corsHeaders }
                 });
             }
@@ -109,6 +109,32 @@ async function setKV(appKey, key, value) {
 function base64encode(str) {
     const b64 = btoa(unescape(encodeURIComponent(str)));
     return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+// --- KYIV TIMEZONE HELPER ---
+function toKyiv(date) {
+    // Returns a Date-like object with Kyiv time components
+    const d = date instanceof Date ? date : new Date(date);
+    const kyivStr = d.toLocaleString("uk-UA", { timeZone: "Europe/Kyiv" });
+    // Parse "DD.MM.YYYY, HH:MM:SS" format
+    const m = kyivStr.match(/(\d+)\.(\d+)\.(\d+),?\s+(\d+):(\d+)/);
+    if (!m) return { day: '??', month: '??', hours: '??', minutes: '??', dateStr: '??', full: kyivStr };
+    return {
+        day: m[1].padStart(2, '0'),
+        month: m[2].padStart(2, '0'),
+        year: m[3],
+        hours: m[4].padStart(2, '0'),
+        minutes: m[5].padStart(2, '0'),
+        dateStr: `${m[1].padStart(2,'0')}.${m[2].padStart(2,'0')}`,
+        timeStr: `${m[4].padStart(2,'0')}:${m[5].padStart(2,'0')}`,
+        isoDate: `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`,
+        full: kyivStr
+    };
+}
+
+function nowKyivISO() {
+    const k = toKyiv(new Date());
+    return `${k.year}-${k.month}-${k.day}T${k.hours}:${k.minutes}:00+03:00`;
 }
 
 function base64decode(b64url) {
@@ -227,7 +253,7 @@ async function handleRSVP(request, env, corsHeaders) {
         transfer,
         cottage,
         comment: displayComment,
-        timestamp: new Date().toISOString()
+        timestamp: nowKyivISO()
     };
 
     // Save to database
@@ -549,7 +575,7 @@ async function handleVisit(request, env, corsHeaders) {
         const body = await request.json();
         const visitorId = body.visitorId || "unknown";
         const ua = request.headers.get("User-Agent") || "unknown";
-        const now = new Date().toISOString();
+        const now = nowKyivISO();
 
         // Determine device type from User-Agent
         let device = "Desktop";
@@ -621,18 +647,21 @@ async function handleVisitorsCommand(env, chatId) {
         else desktopCount++;
     }
 
-    // Today's visits
-    const todayStr = new Date().toISOString().substring(0, 10);
-    const todayVisits = visits.filter(v => v.ts && v.ts.substring(0, 10) === todayStr).length;
+    // Today's visits (Kyiv timezone)
+    const todayKyiv = toKyiv(new Date());
+    const todayStr = todayKyiv.isoDate;
+    const todayVisits = visits.filter(v => {
+        if (!v.ts) return false;
+        const vk = toKyiv(v.ts);
+        return vk.isoDate === todayStr;
+    }).length;
 
     // Recent 20 visits
     const recent = visits.slice(-20).reverse();
     let recentLines = "";
     recent.forEach((v, idx) => {
-        const date = v.ts ? new Date(v.ts) : null;
-        const dateStr = date 
-            ? `${String(date.getDate()).padStart(2, "0")}.${String(date.getMonth() + 1).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}` 
-            : "?";
+        const k = v.ts ? toKyiv(v.ts) : null;
+        const dateStr = k ? `${k.dateStr} ${k.timeStr}` : "?";
         const deviceEmoji = v.device === "Mobile" ? "📱" : v.device === "Tablet" ? "📋" : "💻";
         const shortId = v.id ? v.id.substring(0, 8) : "?";
         recentLines += `${deviceEmoji} \`${shortId}\` — ${dateStr}\n`;
