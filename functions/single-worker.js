@@ -36,11 +36,17 @@ export default {
 
             // Route 2: Telegram Bot Webhook (POST /api/bot-webhook or POST /bot-webhook)
             if (request.method === "POST" && (url.pathname === "/api/bot-webhook" || url.pathname === "/bot-webhook")) {
-                // Respond immediately to Telegram to avoid 5s timeout,
-                // then process the command in the background
+                // Temporarily run synchronously to diagnose background failures directly
                 const body = await request.json();
-                ctx.waitUntil(handleBotWebhook(body, env));
-                return new Response("OK", { status: 200 });
+                try {
+                    await handleBotWebhook(body, env);
+                    return new Response("OK - Sync finished", { status: 200, headers: corsHeaders });
+                } catch (e) {
+                    return new Response(JSON.stringify({ error: e.message, stack: e.stack }), {
+                        status: 500,
+                        headers: { "Content-Type": "application/json", ...corsHeaders }
+                    });
+                }
             }
 
             // Route 3: Visit Tracking (POST /api/visit)
