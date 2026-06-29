@@ -17,7 +17,7 @@ export default {
         try {
             // Route 0: Diagnostic Version (GET /api/version or GET /version)
             if (url.pathname === "/api/version" || url.pathname === "/version") {
-                return new Response(JSON.stringify({ version: "1.3.0-visitors" }), {
+                return new Response(JSON.stringify({ version: "1.4.0-fix" }), {
                     headers: { "Content-Type": "application/json", ...corsHeaders }
                 });
             }
@@ -64,12 +64,19 @@ export default {
 async function getKV(appKey, key) {
     try {
         const res = await fetch(`https://keyvalue.immanuel.co/api/KeyVal/GetValue/${appKey}/${key}`);
-        if (!res.ok) return null;
         const text = await res.text();
-        if (!text || text === "null" || text === '""') return null;
+        
+        // Handle API errors (DBNull, 404, exception responses)
+        if (!res.ok || !text || text === "null" || text === '""') return null;
+        if (text.includes('"ExceptionMessage"') || text.includes('"Message":"An error')) return null;
         
         // Parse the outer quotes returned by ASP.NET API
-        const parsedStr = JSON.parse(text);
+        let parsedStr;
+        try {
+            parsedStr = JSON.parse(text);
+        } catch (e) {
+            return null;
+        }
         
         // Try parsing inner JSON if it is JSON
         try {
@@ -117,14 +124,16 @@ async function setKVLarge(appKey, key, value) {
         const valStr = typeof value === "object" ? JSON.stringify(value) : String(value);
         const base64Data = base64encode(valStr);
         const chunkSize = 150;
-        let i = 0;
-        while (i * chunkSize < base64Data.length) {
+        const totalChunks = Math.ceil(base64Data.length / chunkSize);
+        
+        // Save total chunk count as metadata so reader knows exactly how many to fetch
+        await setKV(appKey, `${key}_meta`, String(totalChunks));
+        
+        for (let i = 0; i < totalChunks; i++) {
             const chunk = base64Data.substring(i * chunkSize, (i + 1) * chunkSize);
             const success = await setKV(appKey, `${key}_${i}`, chunk);
             if (!success) return false;
-            i++;
         }
-        await setKV(appKey, `${key}_${i}`, "");
         return true;
     } catch (err) {
         console.error("setKVLarge error:", err);
@@ -134,38 +143,48 @@ async function setKVLarge(appKey, key, value) {
 
 async function getKVLarge(appKey, key) {
     try {
+        // Read metadata to know how many chunks
+        const metaVal = await getKV(appKey, `${key}_meta`);
+        let totalChunks = 0;
+        
+        if (metaVal !== null) {
+            totalChunks = parseInt(String(metaVal), 10);
+            if (isNaN(totalChunks) || totalChunks <= 0) totalChunks = 0;
+        }
+        
+        if (totalChunks === 0) {
+            // Try reading chunk 0 directly (old format without meta)
+            const firstChunk = await getKV(appKey, `${key}_0`);
+            if (firstChunk === null) {
+                return null;
+            }
+            // Old format: read chunks until null
+            let base64Data = firstChunk;
+            let i = 1;
+            for (; i < 50; i++) { // safety limit
+                const chunk = await getKV(appKey, `${key}_${i}`);
+                if (chunk === null) break;
+                base64Data += chunk;
+            }
+            try {
+                return JSON.parse(base64decode(base64Data));
+            } catch (e) {
+                return null;
+            }
+        }
+        
+        // New format: read exactly totalChunks
         let base64Data = "";
-        let i = 0;
-        const firstChunk = await getKV(appKey, `${key}_0`);
-        if (firstChunk === null) {
-            // Fallback for old keys that are not chunked/encoded
-            const rawVal = await getKV(appKey, key);
-            if (rawVal) {
-                try {
-                    return typeof rawVal === "object" ? rawVal : JSON.parse(rawVal);
-                } catch (e) {
-                    return rawVal;
-                }
-            }
-            return null;
-        }
-        
-        base64Data = firstChunk;
-        i = 1;
-        while (true) {
+        for (let i = 0; i < totalChunks; i++) {
             const chunk = await getKV(appKey, `${key}_${i}`);
-            if (!chunk || chunk === "" || chunk === "null") {
-                break;
-            }
+            if (chunk === null) return null; // data corrupted
             base64Data += chunk;
-            i++;
         }
         
-        const valStr = base64decode(base64Data);
         try {
-            return JSON.parse(valStr);
+            return JSON.parse(base64decode(base64Data));
         } catch (e) {
-            return valStr;
+            return base64decode(base64Data);
         }
     } catch (err) {
         console.error("getKVLarge error:", err);
@@ -299,12 +318,13 @@ async function handleBotWebhook(request, env) {
             "🤖 Вітання! Я помічник вашого весільного запрошення.",
             "",
             "Команди:",
-            "📊 /stats — загальна статистика (кількість гостей, трансфери, будиночки)",
+            "📊 /stats — загальна статистика",
             "📋 /guests — список гостей, які прийдуть",
-            "🏠 /cottages — список тих, кому потрібен будиночок",
-            "🚗 /transfers — список тих, кому потрібен трансфер",
-            "❌ /absent — список тих, хто не зможе прийти",
-            "👁 /visitors — статистика відвідувань сайту"
+            "🏠 /cottages — хто хоче будиночок",
+            "🚗 /transfers — кому потрібен трансфер",
+            "❌ /absent — хто не прийде",
+            "👁 /visitors — відвідувачі сайту",
+            "🗑 /delete N — видалити анкету за номером (з /guests або /absent)"
         ].join("\n");
         await sendTelegramMessage(env.TELEGRAM_BOT_TOKEN, chatId, helpMsg);
         return new Response("OK", { status: 200 });
@@ -312,13 +332,14 @@ async function handleBotWebhook(request, env) {
 
     // Fetch records
     const rsvps = [];
+    const rsvpKeys = []; // parallel array of DB keys for deletion support
     if (env.RSVP_DB) {
         // Native Cloudflare KV
         const list = await env.RSVP_DB.list({ prefix: "rsvp:" });
         for (const key of list.keys) {
             const valStr = await env.RSVP_DB.get(key.name);
             if (valStr) {
-                try { rsvps.push(JSON.parse(valStr)); } catch (e) {}
+                try { rsvps.push(JSON.parse(valStr)); rsvpKeys.push(key.name); } catch (e) {}
             }
         }
     } else if (env.TELEGRAM_CHAT_ID) {
@@ -338,6 +359,7 @@ async function handleBotWebhook(request, env) {
                     const data = await getKVLarge(appKey, key);
                     if (data) {
                         rsvps.push(data);
+                        rsvpKeys.push(key);
                     }
                 }
             }
@@ -445,6 +467,45 @@ async function handleBotWebhook(request, env) {
     }
     else if (text.startsWith("/visitors")) {
         await handleVisitorsCommand(env, chatId);
+    }
+    else if (text.startsWith("/delete")) {
+        const parts = text.split(/\s+/);
+        const num = parseInt(parts[1], 10);
+        if (isNaN(num) || num < 1 || num > rsvps.length) {
+            await sendTelegramMessage(env.TELEGRAM_BOT_TOKEN, chatId, `⚠️ Вкажіть номер анкети від 1 до ${rsvps.length}.\nНаприклад: /delete 3`);
+        } else {
+            const idx = num - 1;
+            const deletedItem = rsvps[idx];
+            const deletedKey = rsvpKeys[idx];
+            
+            const cleanChatId = Math.abs(parseInt(env.TELEGRAM_CHAT_ID, 10));
+            if (!isNaN(cleanChatId) && deletedKey) {
+                const appKey = `rsvp_bot_${cleanChatId}`;
+                
+                // Remove from index
+                let indexStr = await getKV(appKey, "index");
+                if (indexStr) {
+                    const keys = indexStr.split(",").filter(k => k.trim() !== deletedKey && k.trim().length > 0);
+                    await setKV(appKey, "index", keys.length > 0 ? keys.join(",") : "_");
+                }
+                
+                // Clear the data chunks (overwrite meta with 0)
+                await setKV(appKey, `${deletedKey}_meta`, "0");
+                
+                const msg = [
+                    "🗑 Анкету видалено:",
+                    "",
+                    `👤 ${deletedItem.fullName}`,
+                    `✅ ${deletedItem.attendance}`,
+                    `👥 ${deletedItem.guests || "—"}`,
+                    `🚗 ${deletedItem.transfer || "—"}`,
+                    `🏠 ${deletedItem.cottage || "—"}`
+                ].join("\n");
+                await sendTelegramMessage(env.TELEGRAM_BOT_TOKEN, chatId, msg);
+            } else {
+                await sendTelegramMessage(env.TELEGRAM_BOT_TOKEN, chatId, "⚠️ Не вдалося видалити анкету.");
+            }
+        }
     }
 
     return new Response("OK", { status: 200 });
