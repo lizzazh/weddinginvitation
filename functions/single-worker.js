@@ -29,7 +29,11 @@ export default {
 
             // Route 2: Telegram Bot Webhook (POST /api/bot-webhook or POST /bot-webhook)
             if (request.method === "POST" && (url.pathname === "/api/bot-webhook" || url.pathname === "/bot-webhook")) {
-                return await handleBotWebhook(request, env);
+                // Respond immediately to Telegram to avoid 5s timeout,
+                // then process the command in the background
+                const body = await request.json();
+                ctx.waitUntil(handleBotWebhook(body, env));
+                return new Response("OK", { status: 200 });
             }
 
             // Route 3: Visit Tracking (POST /api/visit)
@@ -323,11 +327,9 @@ async function handleRSVP(request, env, corsHeaders) {
 }
 
 // --- BOT WEBHOOK HANDLER ---
-async function handleBotWebhook(request, env) {
-    const update = await request.json();
-
+async function handleBotWebhook(update, env) {
     if (!update.message || !update.message.text) {
-        return new Response("OK", { status: 200 });
+        return;
     }
 
     const chatId = update.message.chat.id;
@@ -336,7 +338,7 @@ async function handleBotWebhook(request, env) {
 
     if (String(chatId).trim() !== authorizedChatId) {
         await sendTelegramMessage(env.TELEGRAM_BOT_TOKEN, chatId, "🔒 Вибачте, у вас немає доступу до цієї статистики.");
-        return new Response("Unauthorized", { status: 200 });
+        return;
     }
 
     if (text === "/start" || text === "/help" || text.includes("/help")) {
@@ -353,7 +355,7 @@ async function handleBotWebhook(request, env) {
             "🗑 /delete N — видалити анкету за номером (з /guests або /absent)"
         ].join("\n");
         await sendTelegramMessage(env.TELEGRAM_BOT_TOKEN, chatId, helpMsg);
-        return new Response("OK", { status: 200 });
+        return;
     }
 
     // Fetch records
@@ -533,8 +535,6 @@ async function handleBotWebhook(request, env) {
             }
         }
     }
-
-    return new Response("OK", { status: 200 });
 }
 
 // --- SET WEBHOOK HANDLER ---
