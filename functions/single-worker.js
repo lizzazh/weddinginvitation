@@ -19,11 +19,11 @@ export default {
             if (url.pathname === "/api/version" || url.pathname === "/version") {
                 try {
                     const testKyiv = toKyiv(new Date());
-                    return new Response(JSON.stringify({ version: "1.5.5-robust-decode", testKyiv }), {
+                    return new Response(JSON.stringify({ version: "1.5.6-prod", testKyiv }), {
                         headers: { "Content-Type": "application/json", ...corsHeaders }
                     });
                 } catch (e) {
-                    return new Response(JSON.stringify({ version: "1.5.5-robust-decode", error: e.message, stack: e.stack }), {
+                    return new Response(JSON.stringify({ version: "1.5.6-prod", error: e.message, stack: e.stack }), {
                         headers: { "Content-Type": "application/json", ...corsHeaders }
                     });
                 }
@@ -36,17 +36,9 @@ export default {
 
             // Route 2: Telegram Bot Webhook (POST /api/bot-webhook or POST /bot-webhook)
             if (request.method === "POST" && (url.pathname === "/api/bot-webhook" || url.pathname === "/bot-webhook")) {
-                // Temporarily run synchronously to diagnose background failures directly
                 const body = await request.json();
-                try {
-                    await handleBotWebhook(body, env);
-                    return new Response("OK - Sync finished", { status: 200, headers: corsHeaders });
-                } catch (e) {
-                    return new Response(JSON.stringify({ error: e.message, stack: e.stack }), {
-                        status: 500,
-                        headers: { "Content-Type": "application/json", ...corsHeaders }
-                    });
-                }
+                ctx.waitUntil(handleBotWebhook(body, env));
+                return new Response("OK", { status: 200 });
             }
 
             // Route 3: Visit Tracking (POST /api/visit)
