@@ -19,11 +19,11 @@ export default {
             if (url.pathname === "/api/version" || url.pathname === "/version") {
                 try {
                     const testKyiv = toKyiv(new Date());
-                    return new Response(JSON.stringify({ version: "1.5.0-geo", testKyiv }), {
+                    return new Response(JSON.stringify({ version: "1.5.1-visitors-fix", testKyiv }), {
                         headers: { "Content-Type": "application/json", ...corsHeaders }
                     });
                 } catch (e) {
-                    return new Response(JSON.stringify({ version: "1.5.0-geo", error: e.message, stack: e.stack }), {
+                    return new Response(JSON.stringify({ version: "1.5.1-visitors-fix", error: e.message, stack: e.stack }), {
                         headers: { "Content-Type": "application/json", ...corsHeaders }
                     });
                 }
@@ -210,18 +210,27 @@ async function getKVLarge(appKey, key) {
             }
         }
         
-        // New format: read exactly totalChunks
+        // New format: read exactly totalChunks, but robustly break if null (salvaging data)
         let base64Data = "";
         for (let i = 0; i < totalChunks; i++) {
             const chunk = await getKV(appKey, `${key}_${i}`);
-            if (chunk === null) return null; // data corrupted
+            if (chunk === null) {
+                console.error(`Chunk ${i} is missing for key ${key}`);
+                break;
+            }
             base64Data += chunk;
         }
+        
+        if (!base64Data) return null;
         
         try {
             return JSON.parse(base64decode(base64Data));
         } catch (e) {
-            return base64decode(base64Data);
+            try {
+                return base64decode(base64Data);
+            } catch (e2) {
+                return null;
+            }
         }
     } catch (err) {
         console.error("getKVLarge error:", err);
