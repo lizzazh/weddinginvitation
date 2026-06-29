@@ -19,11 +19,11 @@ export default {
             if (url.pathname === "/api/version" || url.pathname === "/version") {
                 try {
                     const testKyiv = toKyiv(new Date());
-                    return new Response(JSON.stringify({ version: "1.5.1-visitors-fix", testKyiv }), {
+                    return new Response(JSON.stringify({ version: "1.5.2-html", testKyiv }), {
                         headers: { "Content-Type": "application/json", ...corsHeaders }
                     });
                 } catch (e) {
-                    return new Response(JSON.stringify({ version: "1.5.1-visitors-fix", error: e.message, stack: e.stack }), {
+                    return new Response(JSON.stringify({ version: "1.5.2-html", error: e.message, stack: e.stack }), {
                         headers: { "Content-Type": "application/json", ...corsHeaders }
                     });
                 }
@@ -585,6 +585,22 @@ async function sendTelegramMessage(token, chatId, text) {
     });
 }
 
+async function sendTelegramHTMLMessage(token, chatId, text) {
+    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: chatId, text, parse_mode: "HTML" })
+    });
+}
+
+function escapeHTML(str) {
+    if (!str) return "";
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+}
+
 // --- VISIT TRACKING HANDLER ---
 async function handleVisit(request, env, corsHeaders) {
     try {
@@ -696,32 +712,32 @@ async function handleVisitorsCommand(env, chatId) {
         const k = v.ts ? toKyiv(v.ts) : null;
         const dateStr = k ? `${k.dateStr} ${k.timeStr}` : "?";
         const deviceEmoji = v.device === "Mobile" ? "📱" : v.device === "Tablet" ? "📋" : "💻";
-        const shortId = v.id ? v.id.substring(0, 8) : "?";
+        const shortId = escapeHTML(v.id ? v.id.substring(0, 8) : "?");
         
         let locParts = [];
         if (v.city) locParts.push(v.city);
         if (v.country) locParts.push(v.country);
         
-        const loc = locParts.length > 0 ? locParts.join(", ") : "Unknown location";
-        const tz = v.clientTimezone || v.cfTimezone || "unknown tz";
-        const lang = v.lang && v.lang !== "unknown" ? ` | ${v.lang}` : "";
-        const screen = v.screen && v.screen !== "unknown" ? ` | ${v.screen}` : "";
+        const loc = escapeHTML(locParts.length > 0 ? locParts.join(", ") : "Unknown location");
+        const tz = escapeHTML(v.clientTimezone || v.cfTimezone || "unknown tz");
+        const lang = v.lang && v.lang !== "unknown" ? ` | ${escapeHTML(v.lang)}` : "";
+        const screen = v.screen && v.screen !== "unknown" ? ` | ${escapeHTML(v.screen)}` : "";
         
-        recentLines += `${deviceEmoji} \`${shortId}\` — ${dateStr}\n📍 _${loc}_ (${tz}${screen}${lang})\n\n`;
+        recentLines += `${deviceEmoji} <code>${shortId}</code> — ${dateStr}\n📍 <i>${loc}</i> (${tz}${screen}${lang})\n\n`;
     });
 
     const msg = [
-        "👁 Статистика відвідувань сайту:",
+        "👁 <b>Статистика відвідувань сайту:</b>",
         "",
-        `📊 Всього переглядів: *${totalVisits}*`,
-        `👤 Унікальних відвідувачів: *${uniqueCount}*`,
-        `📅 Сьогодні: *${todayVisits}*`,
+        `📊 Всього переглядів: <b>${totalVisits}</b>`,
+        `👤 Унікальних відвідувачів: <b>${uniqueCount}</b>`,
+        `📅 Сьогодні: <b>${todayVisits}</b>`,
         "",
         `📱 Мобільних: ${mobileCount}  |  💻 Десктоп: ${desktopCount}${tabletCount > 0 ? `  |  📋 Планшет: ${tabletCount}` : ""}`,
         "",
-        "🕐 Останні відвідування:",
+        "🕐 <b>Останні відвідування:</b>",
         recentLines
     ].join("\n");
 
-    await sendTelegramMessage(env.TELEGRAM_BOT_TOKEN, chatId, msg);
+    await sendTelegramHTMLMessage(env.TELEGRAM_BOT_TOKEN, chatId, msg);
 }
