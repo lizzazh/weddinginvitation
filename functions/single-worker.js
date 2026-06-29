@@ -17,7 +17,7 @@ export default {
         try {
             // Route 0: Diagnostic Version (GET /api/version or GET /version)
             if (url.pathname === "/api/version" || url.pathname === "/version") {
-                return new Response(JSON.stringify({ version: "1.4.1-kyiv" }), {
+                return new Response(JSON.stringify({ version: "1.5.0-geo" }), {
                     headers: { "Content-Type": "application/json", ...corsHeaders }
                 });
             }
@@ -574,6 +574,10 @@ async function handleVisit(request, env, corsHeaders) {
     try {
         const body = await request.json();
         const visitorId = body.visitorId || "unknown";
+        const clientTimezone = body.timezone || "unknown";
+        const screen = body.screen || "unknown";
+        const lang = body.lang || "unknown";
+        const referrer = body.ref || "";
         const ua = request.headers.get("User-Agent") || "unknown";
         const now = nowKyivISO();
 
@@ -583,10 +587,23 @@ async function handleVisit(request, env, corsHeaders) {
             device = /ipad/i.test(ua) ? "Tablet" : "Mobile";
         }
 
+        // Get Cloudflare geo details
+        const cf = request.cf || {};
+        const city = cf.city || "";
+        const country = cf.country || "";
+        const cfTimezone = cf.timezone || "";
+
         const visitEntry = {
             id: visitorId,
             ts: now,
-            device: device
+            device: device,
+            city: city,
+            country: country,
+            cfTimezone: cfTimezone,
+            clientTimezone: clientTimezone,
+            screen: screen,
+            lang: lang,
+            ref: referrer
         };
 
         const cleanChatId = Math.abs(parseInt(env.TELEGRAM_CHAT_ID, 10));
@@ -664,7 +681,17 @@ async function handleVisitorsCommand(env, chatId) {
         const dateStr = k ? `${k.dateStr} ${k.timeStr}` : "?";
         const deviceEmoji = v.device === "Mobile" ? "📱" : v.device === "Tablet" ? "📋" : "💻";
         const shortId = v.id ? v.id.substring(0, 8) : "?";
-        recentLines += `${deviceEmoji} \`${shortId}\` — ${dateStr}\n`;
+        
+        let locParts = [];
+        if (v.city) locParts.push(v.city);
+        if (v.country) locParts.push(v.country);
+        
+        const loc = locParts.length > 0 ? locParts.join(", ") : "Unknown location";
+        const tz = v.clientTimezone || v.cfTimezone || "unknown tz";
+        const lang = v.lang && v.lang !== "unknown" ? ` | ${v.lang}` : "";
+        const screen = v.screen && v.screen !== "unknown" ? ` | ${v.screen}` : "";
+        
+        recentLines += `${deviceEmoji} \`${shortId}\` — ${dateStr}\n📍 _${loc}_ (${tz}${screen}${lang})\n\n`;
     });
 
     const msg = [

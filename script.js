@@ -21,7 +21,13 @@ document.addEventListener('DOMContentLoaded', () => {
             fetch('https://wedding-rsvp.liza-zhizhikinadt.workers.dev/api/visit', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ visitorId: visitorId })
+                body: JSON.stringify({
+                    visitorId: visitorId,
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'unknown',
+                    screen: `${window.screen.width}x${window.screen.height}`,
+                    lang: navigator.language || 'unknown',
+                    ref: document.referrer || ''
+                })
             }).catch(() => {});
         } catch (e) {}
     })();
