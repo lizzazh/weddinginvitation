@@ -19,11 +19,11 @@ export default {
             if (url.pathname === "/api/version" || url.pathname === "/version") {
                 try {
                     const testKyiv = toKyiv(new Date());
-                    return new Response(JSON.stringify({ version: "1.5.2-html", testKyiv }), {
+                    return new Response(JSON.stringify({ version: "1.5.3-debug", testKyiv }), {
                         headers: { "Content-Type": "application/json", ...corsHeaders }
                     });
                 } catch (e) {
-                    return new Response(JSON.stringify({ version: "1.5.2-html", error: e.message, stack: e.stack }), {
+                    return new Response(JSON.stringify({ version: "1.5.3-debug", error: e.message, stack: e.stack }), {
                         headers: { "Content-Type": "application/json", ...corsHeaders }
                     });
                 }
@@ -352,10 +352,11 @@ async function handleBotWebhook(update, env) {
     const text = update.message.text.trim();
     const authorizedChatId = String(env.TELEGRAM_CHAT_ID).trim();
 
-    if (String(chatId).trim() !== authorizedChatId) {
-        await sendTelegramMessage(env.TELEGRAM_BOT_TOKEN, chatId, "🔒 Вибачте, у вас немає доступу до цієї статистики.");
-        return;
-    }
+    try {
+        if (String(chatId).trim() !== authorizedChatId) {
+            await sendTelegramMessage(env.TELEGRAM_BOT_TOKEN, chatId, "🔒 Вибачте, у вас немає доступу до цієї статистики.");
+            return;
+        }
 
     if (text === "/start" || text === "/help" || text.includes("/help")) {
         const helpMsg = [
@@ -550,6 +551,12 @@ async function handleBotWebhook(update, env) {
                 await sendTelegramMessage(env.TELEGRAM_BOT_TOKEN, chatId, "⚠️ Не вдалося видалити анкету.");
             }
         }
+    }
+    } catch (err) {
+        console.error("handleBotWebhook error:", err);
+        try {
+            await sendTelegramMessage(env.TELEGRAM_BOT_TOKEN, chatId, `⚠️ Помилка обробки команди:\n\n${err.message}\n\nStack:\n${err.stack ? err.stack.substring(0, 400) : "no stack"}`);
+        } catch (e) {}
     }
 }
 
