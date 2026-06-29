@@ -17,9 +17,16 @@ export default {
         try {
             // Route 0: Diagnostic Version (GET /api/version or GET /version)
             if (url.pathname === "/api/version" || url.pathname === "/version") {
-                return new Response(JSON.stringify({ version: "1.5.0-geo" }), {
-                    headers: { "Content-Type": "application/json", ...corsHeaders }
-                });
+                try {
+                    const testKyiv = toKyiv(new Date());
+                    return new Response(JSON.stringify({ version: "1.5.0-geo", testKyiv }), {
+                        headers: { "Content-Type": "application/json", ...corsHeaders }
+                    });
+                } catch (e) {
+                    return new Response(JSON.stringify({ version: "1.5.0-geo", error: e.message, stack: e.stack }), {
+                        headers: { "Content-Type": "application/json", ...corsHeaders }
+                    });
+                }
             }
 
             // Route 1: Set Webhook (GET /api/set-webhook or GET /set-webhook)
