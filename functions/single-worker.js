@@ -19,11 +19,11 @@ export default {
             if (url.pathname === "/api/version" || url.pathname === "/version") {
                 try {
                     const testKyiv = toKyiv(new Date());
-                    return new Response(JSON.stringify({ version: "1.5.3-debug", testKyiv }), {
+                    return new Response(JSON.stringify({ version: "1.5.4-debug-tg", testKyiv }), {
                         headers: { "Content-Type": "application/json", ...corsHeaders }
                     });
                 } catch (e) {
-                    return new Response(JSON.stringify({ version: "1.5.3-debug", error: e.message, stack: e.stack }), {
+                    return new Response(JSON.stringify({ version: "1.5.4-debug-tg", error: e.message, stack: e.stack }), {
                         headers: { "Content-Type": "application/json", ...corsHeaders }
                     });
                 }
@@ -585,19 +585,27 @@ async function handleSetWebhook(request, env, corsHeaders) {
 }
 
 async function sendTelegramMessage(token, chatId, text) {
-    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ chat_id: chatId, text, parse_mode: "Markdown" })
     });
+    if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`Telegram Markdown send failed: ${res.status} - ${errText}`);
+    }
 }
 
 async function sendTelegramHTMLMessage(token, chatId, text) {
-    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ chat_id: chatId, text, parse_mode: "HTML" })
     });
+    if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`Telegram HTML send failed: ${res.status} - ${errText}`);
+    }
 }
 
 function escapeHTML(str) {
