@@ -19,11 +19,11 @@ export default {
             if (url.pathname === "/api/version" || url.pathname === "/version") {
                 try {
                     const testKyiv = toKyiv(new Date());
-                    return new Response(JSON.stringify({ version: "1.5.4-debug-tg", testKyiv }), {
+                    return new Response(JSON.stringify({ version: "1.5.5-robust-decode", testKyiv }), {
                         headers: { "Content-Type": "application/json", ...corsHeaders }
                     });
                 } catch (e) {
-                    return new Response(JSON.stringify({ version: "1.5.4-debug-tg", error: e.message, stack: e.stack }), {
+                    return new Response(JSON.stringify({ version: "1.5.5-robust-decode", error: e.message, stack: e.stack }), {
                         headers: { "Content-Type": "application/json", ...corsHeaders }
                     });
                 }
@@ -159,7 +159,31 @@ function base64decode(b64url) {
     while (b64.length % 4) {
         b64 += "=";
     }
-    return decodeURIComponent(escape(atob(b64)));
+    const binary = atob(b64);
+    for (let len = binary.length; len > 0; len--) {
+        try {
+            return decodeURIComponent(escape(binary.substring(0, len)));
+        } catch (e) {
+            if (!e.message.includes("malformed")) throw e;
+        }
+    }
+    return "";
+}
+
+function robustJSONParse(str) {
+    try {
+        return JSON.parse(str);
+    } catch (e) {
+        if (str.trim().startsWith("[")) {
+            const lastBrace = str.lastIndexOf("}");
+            if (lastBrace !== -1) {
+                try {
+                    return JSON.parse(str.substring(0, lastBrace + 1) + "]");
+                } catch (e2) {}
+            }
+        }
+        throw e;
+    }
 }
 
 async function setKVLarge(appKey, key, value) {
@@ -230,13 +254,9 @@ async function getKVLarge(appKey, key) {
         if (!base64Data) return null;
         
         try {
-            return JSON.parse(base64decode(base64Data));
+            return robustJSONParse(base64decode(base64Data));
         } catch (e) {
-            try {
-                return base64decode(base64Data);
-            } catch (e2) {
-                return null;
-            }
+            return null;
         }
     } catch (err) {
         console.error("getKVLarge error:", err);
