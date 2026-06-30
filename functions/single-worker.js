@@ -19,11 +19,11 @@ export default {
             if (url.pathname === "/api/version" || url.pathname === "/version") {
                 try {
                     const testKyiv = toKyiv(new Date());
-                    return new Response(JSON.stringify({ version: "1.5.6-prod", testKyiv }), {
+                    return new Response(JSON.stringify({ version: "1.6.0-parallel", testKyiv }), {
                         headers: { "Content-Type": "application/json", ...corsHeaders }
                     });
                 } catch (e) {
-                    return new Response(JSON.stringify({ version: "1.5.6-prod", error: e.message, stack: e.stack }), {
+                    return new Response(JSON.stringify({ version: "1.6.0-parallel", error: e.message, stack: e.stack }), {
                         headers: { "Content-Type": "application/json", ...corsHeaders }
                     });
                 }
@@ -232,13 +232,19 @@ async function getKVLarge(appKey, key) {
             }
         }
         
-        // New format: read exactly totalChunks, but robustly break if null (salvaging data)
+        // New format: read all chunks in parallel!
+        const promises = [];
+        for (let i = 0; i < totalChunks; i++) {
+            promises.push(getKV(appKey, `${key}_${i}`));
+        }
+        const chunks = await Promise.all(promises);
+        
         let base64Data = "";
         for (let i = 0; i < totalChunks; i++) {
-            const chunk = await getKV(appKey, `${key}_${i}`);
+            const chunk = chunks[i];
             if (chunk === null) {
                 console.error(`Chunk ${i} is missing for key ${key}`);
-                break;
+                break; // robust fallback
             }
             base64Data += chunk;
         }
@@ -417,12 +423,19 @@ async function handleBotWebhook(update, env) {
                 const keys = indexStr.split(",").filter(k => k.trim().length > 0);
                 
                 // 2. Fetch all guest records
-                for (const key of keys) {
-                    if (!key.startsWith("rsvp_")) continue;
-                    const data = await getKVLarge(appKey, key);
-                    if (data) {
-                        rsvps.push(data);
-                        rsvpKeys.push(key);
+                // 2. Fetch all guest records in parallel!
+                const rsvpPromises = keys
+                    .filter(key => key.startsWith("rsvp_"))
+                    .map(async (key) => {
+                        const data = await getKVLarge(appKey, key);
+                        return { key, data };
+                    });
+                
+                const results = await Promise.all(rsvpPromises);
+                for (const res of results) {
+                    if (res.data) {
+                        rsvps.push(res.data);
+                        rsvpKeys.push(res.key);
                     }
                 }
             }
