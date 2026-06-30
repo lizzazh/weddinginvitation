@@ -19,11 +19,11 @@ export default {
             if (url.pathname === "/api/version" || url.pathname === "/version") {
                 try {
                     const testKyiv = toKyiv(new Date());
-                    return new Response(JSON.stringify({ version: "1.6.0-parallel", testKyiv }), {
+                    return new Response(JSON.stringify({ version: "1.7.0-stats-pruning", testKyiv }), {
                         headers: { "Content-Type": "application/json", ...corsHeaders }
                     });
                 } catch (e) {
-                    return new Response(JSON.stringify({ version: "1.6.0-parallel", error: e.message, stack: e.stack }), {
+                    return new Response(JSON.stringify({ version: "1.7.0-stats-pruning", error: e.message, stack: e.stack }), {
                         headers: { "Content-Type": "application/json", ...corsHeaders }
                     });
                 }
@@ -182,7 +182,7 @@ async function setKVLarge(appKey, key, value) {
     try {
         const valStr = typeof value === "object" ? JSON.stringify(value) : String(value);
         const base64Data = base64encode(valStr);
-        const chunkSize = 150;
+        const chunkSize = 240;
         const totalChunks = Math.ceil(base64Data.length / chunkSize);
         
         // Save total chunk count as metadata so reader knows exactly how many to fetch
@@ -260,6 +260,52 @@ async function getKVLarge(appKey, key) {
         console.error("getKVLarge error:", err);
         return null;
     }
+}
+
+// --- VISITS DATA HELPER (WITH AUTO-MIGRATION & PRUNING) ---
+async function getVisitsData(appKey) {
+    let stats = await getKVLarge(appKey, "visits_stats");
+    let log = await getKVLarge(appKey, "visits_log");
+    
+    if (!log || !Array.isArray(log)) {
+        log = [];
+    }
+    
+    // Auto-migration: if stats is missing but log has data, build stats from log
+    if (!stats && log.length > 0) {
+        const uniqueIds = Array.from(new Set(log.map(v => v.id).filter(Boolean)));
+        let mobile = 0, desktop = 0, tablet = 0;
+        for (const v of log) {
+            if (v.device === "Mobile") mobile++;
+            else if (v.device === "Tablet") tablet++;
+            else desktop++;
+        }
+        stats = {
+            total: log.length,
+            uniqueIds: uniqueIds,
+            mobile: mobile,
+            desktop: desktop,
+            tablet: tablet
+        };
+        // Save stats and prune log
+        await setKVLarge(appKey, "visits_stats", stats);
+        if (log.length > 25) {
+            log = log.slice(-25);
+            await setKVLarge(appKey, "visits_log", log);
+        }
+    }
+    
+    if (!stats) {
+        stats = {
+            total: 0,
+            uniqueIds: [],
+            mobile: 0,
+            desktop: 0,
+            tablet: 0
+        };
+    }
+    
+    return { stats, log };
 }
 
 // --- RSVP HANDLER ---
@@ -688,16 +734,27 @@ async function handleVisit(request, env, corsHeaders) {
         if (!isNaN(cleanChatId)) {
             const appKey = `rsvp_bot_${cleanChatId}`;
             
-            // Get existing visits list
-            let visits = await getKVLarge(appKey, "visits_log");
-            if (!visits || !Array.isArray(visits)) {
-                visits = [];
+            // Get stats and log
+            let { stats, log } = await getVisitsData(appKey);
+            
+            // Update stats
+            stats.total++;
+            if (visitorId && !stats.uniqueIds.includes(visitorId)) {
+                stats.uniqueIds.push(visitorId);
+            }
+            if (device === "Mobile") stats.mobile++;
+            else if (device === "Tablet") stats.tablet++;
+            else stats.desktop++;
+            
+            // Update log
+            log.push(visitEntry);
+            if (log.length > 25) {
+                log = log.slice(-25);
             }
             
-            visits.push(visitEntry);
-            
-            // Save updated visits list
-            await setKVLarge(appKey, "visits_log", visits);
+            // Save both
+            await setKVLarge(appKey, "visits_stats", stats);
+            await setKVLarge(appKey, "visits_log", log);
         }
 
         return new Response(
@@ -721,38 +778,30 @@ async function handleVisitorsCommand(env, chatId) {
     }
 
     const appKey = `rsvp_bot_${cleanChatId}`;
-    let visits = await getKVLarge(appKey, "visits_log");
+    const { stats, log } = await getVisitsData(appKey);
     
-    if (!visits || !Array.isArray(visits) || visits.length === 0) {
+    if (stats.total === 0) {
         await sendTelegramMessage(env.TELEGRAM_BOT_TOKEN, chatId, "👁 Поки що ніхто не відвідав сайт.");
         return;
     }
 
-    const totalVisits = visits.length;
-    const uniqueIds = new Set(visits.map(v => v.id));
-    const uniqueCount = uniqueIds.size;
-    
-    // Count devices
-    let mobileCount = 0;
-    let desktopCount = 0;
-    let tabletCount = 0;
-    for (const v of visits) {
-        if (v.device === "Mobile") mobileCount++;
-        else if (v.device === "Tablet") tabletCount++;
-        else desktopCount++;
-    }
+    const totalVisits = stats.total;
+    const uniqueCount = stats.uniqueIds.length;
+    const mobileCount = stats.mobile;
+    const desktopCount = stats.desktop;
+    const tabletCount = stats.tablet;
 
     // Today's visits (Kyiv timezone)
     const todayKyiv = toKyiv(new Date());
     const todayStr = todayKyiv.isoDate;
-    const todayVisits = visits.filter(v => {
+    const todayVisits = log.filter(v => {
         if (!v.ts) return false;
         const vk = toKyiv(v.ts);
         return vk.isoDate === todayStr;
     }).length;
 
     // Recent 20 visits
-    const recent = visits.slice(-20).reverse();
+    const recent = log.slice(-20).reverse();
     let recentLines = "";
     recent.forEach((v, idx) => {
         const k = v.ts ? toKyiv(v.ts) : null;
