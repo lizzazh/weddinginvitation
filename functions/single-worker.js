@@ -2,6 +2,11 @@ export default {
     async fetch(request, env, ctx) {
         const url = new URL(request.url);
 
+        if (env.RSVP_DB) {
+            ctx.waitUntil(migrateGuestsToKV(env));
+            ctx.waitUntil(migrateVisitsToKV(env));
+        }
+
         // CORS headers
         const corsHeaders = {
             "Access-Control-Allow-Origin": "*",
@@ -19,11 +24,11 @@ export default {
             if (url.pathname === "/api/version" || url.pathname === "/version") {
                 try {
                     const testKyiv = toKyiv(new Date());
-                    return new Response(JSON.stringify({ version: "1.5.6-prod", testKyiv }), {
+                    return new Response(JSON.stringify({ version: "1.10.0-kv-only", testKyiv }), {
                         headers: { "Content-Type": "application/json", ...corsHeaders }
                     });
                 } catch (e) {
-                    return new Response(JSON.stringify({ version: "1.5.6-prod", error: e.message, stack: e.stack }), {
+                    return new Response(JSON.stringify({ version: "1.10.0-kv-only", error: e.message, stack: e.stack }), {
                         headers: { "Content-Type": "application/json", ...corsHeaders }
                     });
                 }
@@ -253,6 +258,159 @@ async function getKVLarge(appKey, key) {
     } catch (err) {
         console.error("getKVLarge error:", err);
         return null;
+    }
+}
+
+// --- VISITS DATA HELPER (WITH AUTO-MIGRATION to Cloudflare KV) ---
+async function getVisitsData(appKey, env) {
+    if (env.RSVP_DB) {
+        let stats = null;
+        let log = null;
+        try {
+            const statsStr = await env.RSVP_DB.get("visits_stats");
+            if (statsStr) stats = JSON.parse(statsStr);
+            const logStr = await env.RSVP_DB.get("visits_log");
+            if (logStr) log = JSON.parse(logStr);
+        } catch (e) {}
+        
+        if (!stats) stats = { total: 0, uniqueIds: [], mobile: 0, desktop: 0, tablet: 0 };
+        if (!log || !Array.isArray(log)) log = [];
+        return { stats, log, isNative: true };
+    }
+    
+    let compact = null;
+    try {
+        const b64 = await getKV(appKey, "visits_compact");
+        if (b64) {
+            compact = JSON.parse(base64decode(b64));
+        }
+    } catch (e) {}
+    
+    if (!compact) {
+        compact = { t: 0, u: 0, m: 0, d: 0, b: 0, ids: [], r: [] };
+    }
+    
+    const stats = {
+        total: compact.t,
+        uniqueIds: compact.ids || [],
+        mobile: compact.m,
+        desktop: compact.d,
+        tablet: compact.b,
+        _uniqueCount: compact.u
+    };
+    
+    const log = (compact.r || []).map(v => ({
+        id: v.i,
+        ts: v.t,
+        device: v.d === "M" ? "Mobile" : v.d === "T" ? "Tablet" : "Desktop",
+        location: v.l || "Unknown",
+        _isPreFormatted: true
+    }));
+    
+    return { stats, log, isNative: false, rawCompact: compact };
+}
+
+async function migrateGuestsToKV(env) {
+    try {
+        const isMigrated = await env.RSVP_DB.get("migrated_guests");
+        if (isMigrated) return;
+        
+        const cleanChatId = Math.abs(parseInt(env.TELEGRAM_CHAT_ID, 10));
+        if (isNaN(cleanChatId)) return;
+        const appKey = `rsvp_bot_${cleanChatId}`;
+        
+        const indexStr = await getKV(appKey, "index");
+        if (indexStr) {
+            const keys = indexStr.split(",").filter(k => k.trim().length > 0);
+            for (const key of keys) {
+                if (!key.startsWith("rsvp_")) continue;
+                const data = await getKVLarge(appKey, key);
+                if (data) {
+                    await env.RSVP_DB.put(`rsvp:${key}`, JSON.stringify(data));
+                }
+            }
+        }
+        await env.RSVP_DB.put("migrated_guests", "true");
+    } catch (e) {
+        console.error("Guest migration failed:", e);
+    }
+}
+
+async function migrateVisitsToKV(env) {
+    try {
+        const isMigrated = await env.RSVP_DB.get("migrated_visits");
+        if (isMigrated) return;
+        
+        const cleanChatId = Math.abs(parseInt(env.TELEGRAM_CHAT_ID, 10));
+        if (isNaN(cleanChatId)) return;
+        const appKey = `rsvp_bot_${cleanChatId}`;
+        
+        let oldLog = await getKVLarge(appKey, "visits_log");
+        let compact = null;
+        try {
+            const b64 = await getKV(appKey, "visits_compact");
+            if (b64) compact = JSON.parse(base64decode(b64));
+        } catch (e) {}
+        
+        if (oldLog && Array.isArray(oldLog) && oldLog.length > 0) {
+            oldLog.sort((a, b) => new Date(a.ts).getTime() - new Date(b.ts).getTime());
+            
+            const uniqueIds = Array.from(new Set(oldLog.map(v => v.id).filter(Boolean)));
+            let mobile = 0, desktop = 0, tablet = 0;
+            for (const v of oldLog) {
+                if (v.device === "Mobile") mobile++;
+                else if (v.device === "Tablet") tablet++;
+                else desktop++;
+            }
+            
+            let total = oldLog.length;
+            let uniqueCount = uniqueIds.length;
+            let mCount = mobile, dCount = desktop, tCount = tablet;
+            if (compact && compact.t > total) {
+                total = compact.t;
+                uniqueCount = compact.u;
+                mCount = compact.m;
+                dCount = compact.d;
+                tCount = compact.b;
+            }
+            
+            const stats = {
+                total: total,
+                uniqueIds: uniqueIds,
+                mobile: mCount,
+                desktop: dCount,
+                tablet: tCount
+            };
+            while (stats.uniqueIds.length < uniqueCount) {
+                stats.uniqueIds.push(`v_migrated_${stats.uniqueIds.length}`);
+            }
+            
+            await env.RSVP_DB.put("visits_stats", JSON.stringify(stats));
+            await env.RSVP_DB.put("visits_log", JSON.stringify(oldLog));
+        } else if (compact) {
+            const stats = {
+                total: compact.t,
+                uniqueIds: compact.ids || [],
+                mobile: compact.m,
+                desktop: compact.d,
+                tablet: compact.b
+            };
+            while (stats.uniqueIds.length < compact.u) {
+                stats.uniqueIds.push(`v_migrated_${stats.uniqueIds.length}`);
+            }
+            const log = (compact.r || []).map(v => ({
+                id: v.i,
+                ts: v.t,
+                device: v.d === "M" ? "Mobile" : v.d === "T" ? "Tablet" : "Desktop",
+                location: v.l || "Unknown",
+                _isPreFormatted: true
+            }));
+            await env.RSVP_DB.put("visits_stats", JSON.stringify(stats));
+            await env.RSVP_DB.put("visits_log", JSON.stringify(log));
+        }
+        await env.RSVP_DB.put("migrated_visits", "true");
+    } catch (e) {
+        console.error("Visits migration failed:", e);
     }
 }
 
@@ -675,16 +833,50 @@ async function handleVisit(request, env, corsHeaders) {
         if (!isNaN(cleanChatId)) {
             const appKey = `rsvp_bot_${cleanChatId}`;
             
-            // Get existing visits list
-            let visits = await getKVLarge(appKey, "visits_log");
-            if (!visits || !Array.isArray(visits)) {
-                visits = [];
+            let { stats, log, isNative, rawCompact } = await getVisitsData(appKey, env);
+            
+            if (isNative) {
+                stats.total++;
+                if (visitorId && !stats.uniqueIds.includes(visitorId)) {
+                    stats.uniqueIds.push(visitorId);
+                }
+                if (device === "Mobile") stats.mobile++;
+                else if (device === "Tablet") stats.tablet++;
+                else stats.desktop++;
+                
+                log.push(visitEntry);
+                
+                // Sort chronologically by timestamp
+                log.sort((a, b) => new Date(a.ts).getTime() - new Date(b.ts).getTime());
+                if (log.length > 50) log = log.slice(-50);
+                
+                await env.RSVP_DB.put("visits_stats", JSON.stringify(stats));
+                await env.RSVP_DB.put("visits_log", JSON.stringify(log));
+            } else {
+                rawCompact.t++;
+                if (visitorId && !rawCompact.ids.includes(visitorId)) {
+                    rawCompact.ids.push(visitorId);
+                    rawCompact.u++;
+                    if (rawCompact.ids.length > 10) rawCompact.ids.shift();
+                }
+                if (device === "Mobile") rawCompact.m++;
+                else if (device === "Tablet") rawCompact.b++;
+                else rawCompact.d++;
+                
+                const k = toKyiv(now);
+                const cityStr = city ? city.substring(0, 10) : "";
+                const locStr = cityStr || (country ? country.substring(0, 2) : "Unknown");
+                
+                rawCompact.r.push({
+                    i: visitorId ? visitorId.substring(0, 6) : "??",
+                    t: `${k.dateStr} ${k.timeStr}`,
+                    d: device === "Mobile" ? "M" : device === "Tablet" ? "T" : "D",
+                    l: locStr
+                });
+                if (rawCompact.r.length > 1) rawCompact.r.shift();
+                
+                await setKV(appKey, "visits_compact", base64encode(JSON.stringify(rawCompact)));
             }
-            
-            visits.push(visitEntry);
-            
-            // Save updated visits list
-            await setKVLarge(appKey, "visits_log", visits);
         }
 
         return new Response(
@@ -708,55 +900,65 @@ async function handleVisitorsCommand(env, chatId) {
     }
 
     const appKey = `rsvp_bot_${cleanChatId}`;
-    let visits = await getKVLarge(appKey, "visits_log");
+    const { stats, log, isNative } = await getVisitsData(appKey, env);
     
-    if (!visits || !Array.isArray(visits) || visits.length === 0) {
+    if (stats.total === 0) {
         await sendTelegramMessage(env.TELEGRAM_BOT_TOKEN, chatId, "👁 Поки що ніхто не відвідав сайт.");
         return;
     }
 
-    const totalVisits = visits.length;
-    const uniqueIds = new Set(visits.map(v => v.id));
-    const uniqueCount = uniqueIds.size;
-    
-    // Count devices
-    let mobileCount = 0;
-    let desktopCount = 0;
-    let tabletCount = 0;
-    for (const v of visits) {
-        if (v.device === "Mobile") mobileCount++;
-        else if (v.device === "Tablet") tabletCount++;
-        else desktopCount++;
+    // Ensure sorted chronologically
+    if (isNative) {
+        log.sort((a, b) => new Date(a.ts).getTime() - new Date(b.ts).getTime());
     }
+
+    const totalVisits = stats.total;
+    const uniqueCount = stats._uniqueCount !== undefined ? stats._uniqueCount : stats.uniqueIds.length;
+    const mobileCount = stats.mobile;
+    const desktopCount = stats.desktop;
+    const tabletCount = stats.tablet;
 
     // Today's visits (Kyiv timezone)
     const todayKyiv = toKyiv(new Date());
     const todayStr = todayKyiv.isoDate;
-    const todayVisits = visits.filter(v => {
+    const todayVisits = log.filter(v => {
         if (!v.ts) return false;
+        if (v._isPreFormatted) {
+            const formattedToday = todayKyiv.dateStr;
+            return v.ts.startsWith(formattedToday);
+        }
         const vk = toKyiv(v.ts);
         return vk.isoDate === todayStr;
     }).length;
 
-    // Recent 20 visits
-    const recent = visits.slice(-20).reverse();
+    // Recent visits
+    const recent = log.slice().reverse();
     let recentLines = "";
-    recent.forEach((v, idx) => {
-        const k = v.ts ? toKyiv(v.ts) : null;
-        const dateStr = k ? `${k.dateStr} ${k.timeStr}` : "?";
+    recent.forEach((v) => {
         const deviceEmoji = v.device === "Mobile" ? "📱" : v.device === "Tablet" ? "📋" : "💻";
-        const shortId = escapeHTML(v.id ? v.id.substring(0, 8) : "?");
+        const shortId = escapeHTML(v.id || "?");
         
-        let locParts = [];
-        if (v.city) locParts.push(v.city);
-        if (v.country) locParts.push(v.country);
+        let dateStr = "";
+        if (v._isPreFormatted) {
+            dateStr = v.ts;
+        } else {
+            const k = v.ts ? toKyiv(v.ts) : null;
+            dateStr = k ? `${k.dateStr} ${k.timeStr}` : "?";
+        }
         
-        const loc = escapeHTML(locParts.length > 0 ? locParts.join(", ") : "Unknown location");
-        const tz = escapeHTML(v.clientTimezone || v.cfTimezone || "unknown tz");
-        const lang = v.lang && v.lang !== "unknown" ? ` | ${escapeHTML(v.lang)}` : "";
-        const screen = v.screen && v.screen !== "unknown" ? ` | ${escapeHTML(v.screen)}` : "";
+        let locLine = "";
+        if (v._isPreFormatted) {
+            locLine = v.location ? escapeHTML(v.location) : "Unknown location";
+        } else {
+            let locParts = [];
+            if (v.city) locParts.push(v.city);
+            if (v.country) locParts.push(v.country);
+            locLine = escapeHTML(locParts.length > 0 ? locParts.join(", ") : "Unknown location");
+        }
         
-        recentLines += `${deviceEmoji} <code>${shortId}</code> — ${dateStr}\n📍 <i>${loc}</i> (${tz}${screen}${lang})\n\n`;
+        const extraInfo = v._isPreFormatted ? "" : ` (${escapeHTML(v.clientTimezone || v.cfTimezone || "unknown tz")})`;
+        
+        recentLines += `${deviceEmoji} <code>${shortId}</code> — ${dateStr}\n📍 <i>${locLine}</i>${extraInfo}\n\n`;
     });
 
     const msg = [
