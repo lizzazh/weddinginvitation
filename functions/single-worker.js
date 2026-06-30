@@ -19,11 +19,11 @@ export default {
             if (url.pathname === "/api/version" || url.pathname === "/version") {
                 try {
                     const testKyiv = toKyiv(new Date());
-                    return new Response(JSON.stringify({ version: "1.7.0-stats-pruning", testKyiv }), {
+                    return new Response(JSON.stringify({ version: "1.8.0-kv-fallback", testKyiv }), {
                         headers: { "Content-Type": "application/json", ...corsHeaders }
                     });
                 } catch (e) {
-                    return new Response(JSON.stringify({ version: "1.7.0-stats-pruning", error: e.message, stack: e.stack }), {
+                    return new Response(JSON.stringify({ version: "1.8.0-kv-fallback", error: e.message, stack: e.stack }), {
                         headers: { "Content-Type": "application/json", ...corsHeaders }
                     });
                 }
@@ -262,50 +262,83 @@ async function getKVLarge(appKey, key) {
     }
 }
 
-// --- VISITS DATA HELPER (WITH AUTO-MIGRATION & PRUNING) ---
-async function getVisitsData(appKey) {
-    let stats = await getKVLarge(appKey, "visits_stats");
-    let log = await getKVLarge(appKey, "visits_log");
-    
-    if (!log || !Array.isArray(log)) {
-        log = [];
+// --- VISITS DATA HELPER (WITH AUTO-MIGRATION & COMPACT FALLBACK) ---
+async function getVisitsData(appKey, env) {
+    if (env.RSVP_DB) {
+        // Native Cloudflare KV (full-featured, unlimited)
+        let stats = null;
+        let log = null;
+        try {
+            const statsStr = await env.RSVP_DB.get("visits_stats");
+            if (statsStr) stats = JSON.parse(statsStr);
+            const logStr = await env.RSVP_DB.get("visits_log");
+            if (logStr) log = JSON.parse(logStr);
+        } catch (e) {}
+        
+        if (!stats) stats = { total: 0, uniqueIds: [], mobile: 0, desktop: 0, tablet: 0 };
+        if (!log || !Array.isArray(log)) log = [];
+        return { stats, log, isNative: true };
     }
     
-    // Auto-migration: if stats is missing but log has data, build stats from log
-    if (!stats && log.length > 0) {
-        const uniqueIds = Array.from(new Set(log.map(v => v.id).filter(Boolean)));
-        let mobile = 0, desktop = 0, tablet = 0;
-        for (const v of log) {
-            if (v.device === "Mobile") mobile++;
-            else if (v.device === "Tablet") tablet++;
-            else desktop++;
+    // Fallback: keyvalue.immanuel.co compact format (zero chunking, max stability)
+    let compact = null;
+    try {
+        const b64 = await getKV(appKey, "visits_compact");
+        if (b64) {
+            compact = JSON.parse(base64decode(b64));
         }
-        stats = {
-            total: log.length,
-            uniqueIds: uniqueIds,
-            mobile: mobile,
-            desktop: desktop,
-            tablet: tablet
-        };
-        // Save stats and prune log
-        await setKVLarge(appKey, "visits_stats", stats);
-        if (log.length > 25) {
-            log = log.slice(-25);
-            await setKVLarge(appKey, "visits_log", log);
+    } catch (e) {}
+    
+    // Auto-migration from old chunked visits_log if visits_compact is missing
+    if (!compact) {
+        let log = await getKVLarge(appKey, "visits_log");
+        if (log && Array.isArray(log) && log.length > 0) {
+            const uniqueIds = Array.from(new Set(log.map(v => v.id).filter(Boolean)));
+            let mobile = 0, desktop = 0, tablet = 0;
+            for (const v of log) {
+                if (v.device === "Mobile") mobile++;
+                else if (v.device === "Tablet") tablet++;
+                else desktop++;
+            }
+            compact = {
+                t: log.length,
+                u: uniqueIds.length,
+                m: mobile,
+                d: desktop,
+                b: tablet,
+                ids: uniqueIds.slice(-10),
+                r: log.slice(-1).map(v => {
+                    const k = toKyiv(v.ts || new Date());
+                    return { i: v.id ? v.id.substring(0, 6) : "??", t: `${k.dateStr} ${k.timeStr}`, d: v.device === "Mobile" ? "M" : v.device === "Tablet" ? "T" : "D", l: "Unknown" };
+                })
+            };
+            await setKV(appKey, "visits_compact", base64encode(JSON.stringify(compact)));
         }
     }
     
-    if (!stats) {
-        stats = {
-            total: 0,
-            uniqueIds: [],
-            mobile: 0,
-            desktop: 0,
-            tablet: 0
-        };
+    if (!compact) {
+        compact = { t: 0, u: 0, m: 0, d: 0, b: 0, ids: [], r: [] };
     }
     
-    return { stats, log };
+    // Map compact structure to stats and log
+    const stats = {
+        total: compact.t,
+        uniqueIds: compact.ids || [],
+        mobile: compact.m,
+        desktop: compact.d,
+        tablet: compact.b,
+        _uniqueCount: compact.u // preserve exact unique count
+    };
+    
+    const log = (compact.r || []).map(v => ({
+        id: v.i,
+        ts: v.t, // already formatted string
+        device: v.d === "M" ? "Mobile" : v.d === "T" ? "Tablet" : "Desktop",
+        location: v.l || "Unknown",
+        _isPreFormatted: true // flag to skip formatting
+    }));
+    
+    return { stats, log, isNative: false, rawCompact: compact };
 }
 
 // --- RSVP HANDLER ---
@@ -735,26 +768,50 @@ async function handleVisit(request, env, corsHeaders) {
             const appKey = `rsvp_bot_${cleanChatId}`;
             
             // Get stats and log
-            let { stats, log } = await getVisitsData(appKey);
+            let { stats, log, isNative, rawCompact } = await getVisitsData(appKey, env);
             
-            // Update stats
-            stats.total++;
-            if (visitorId && !stats.uniqueIds.includes(visitorId)) {
-                stats.uniqueIds.push(visitorId);
+            if (isNative) {
+                // Native Cloudflare KV: save stats and log with full details
+                stats.total++;
+                if (visitorId && !stats.uniqueIds.includes(visitorId)) {
+                    stats.uniqueIds.push(visitorId);
+                }
+                if (device === "Mobile") stats.mobile++;
+                else if (device === "Tablet") stats.tablet++;
+                else stats.desktop++;
+                
+                log.push(visitEntry);
+                if (log.length > 50) log = log.slice(-50);
+                
+                await env.RSVP_DB.put("visits_stats", JSON.stringify(stats));
+                await env.RSVP_DB.put("visits_log", JSON.stringify(log));
+            } else {
+                // Compact format: update rawCompact and write in 1 single request
+                rawCompact.t++;
+                if (visitorId && !rawCompact.ids.includes(visitorId)) {
+                    rawCompact.ids.push(visitorId);
+                    rawCompact.u++;
+                    if (rawCompact.ids.length > 10) rawCompact.ids.shift();
+                }
+                if (device === "Mobile") rawCompact.m++;
+                else if (device === "Tablet") rawCompact.b++;
+                else rawCompact.d++;
+                
+                // Prepend recent visit (max 1 entry to keep it under 150 chars base64)
+                const k = toKyiv(now);
+                const cityStr = city ? city.substring(0, 10) : "";
+                const locStr = cityStr || (country ? country.substring(0, 2) : "Unknown");
+                
+                rawCompact.r.push({
+                    i: visitorId ? visitorId.substring(0, 6) : "??",
+                    t: `${k.dateStr} ${k.timeStr}`,
+                    d: device === "Mobile" ? "M" : device === "Tablet" ? "T" : "D",
+                    l: locStr
+                });
+                if (rawCompact.r.length > 1) rawCompact.r.shift();
+                
+                await setKV(appKey, "visits_compact", base64encode(JSON.stringify(rawCompact)));
             }
-            if (device === "Mobile") stats.mobile++;
-            else if (device === "Tablet") stats.tablet++;
-            else stats.desktop++;
-            
-            // Update log
-            log.push(visitEntry);
-            if (log.length > 25) {
-                log = log.slice(-25);
-            }
-            
-            // Save both
-            await setKVLarge(appKey, "visits_stats", stats);
-            await setKVLarge(appKey, "visits_log", log);
         }
 
         return new Response(
@@ -778,7 +835,7 @@ async function handleVisitorsCommand(env, chatId) {
     }
 
     const appKey = `rsvp_bot_${cleanChatId}`;
-    const { stats, log } = await getVisitsData(appKey);
+    const { stats, log, isNative } = await getVisitsData(appKey, env);
     
     if (stats.total === 0) {
         await sendTelegramMessage(env.TELEGRAM_BOT_TOKEN, chatId, "👁 Поки що ніхто не відвідав сайт.");
@@ -786,7 +843,7 @@ async function handleVisitorsCommand(env, chatId) {
     }
 
     const totalVisits = stats.total;
-    const uniqueCount = stats.uniqueIds.length;
+    const uniqueCount = stats._uniqueCount !== undefined ? stats._uniqueCount : stats.uniqueIds.length;
     const mobileCount = stats.mobile;
     const desktopCount = stats.desktop;
     const tabletCount = stats.tablet;
@@ -796,29 +853,42 @@ async function handleVisitorsCommand(env, chatId) {
     const todayStr = todayKyiv.isoDate;
     const todayVisits = log.filter(v => {
         if (!v.ts) return false;
+        if (v._isPreFormatted) {
+            const formattedToday = todayKyiv.dateStr;
+            return v.ts.startsWith(formattedToday);
+        }
         const vk = toKyiv(v.ts);
         return vk.isoDate === todayStr;
     }).length;
 
-    // Recent 20 visits
-    const recent = log.slice(-20).reverse();
+    // Recent visits
+    const recent = log.slice().reverse();
     let recentLines = "";
-    recent.forEach((v, idx) => {
-        const k = v.ts ? toKyiv(v.ts) : null;
-        const dateStr = k ? `${k.dateStr} ${k.timeStr}` : "?";
+    recent.forEach((v) => {
         const deviceEmoji = v.device === "Mobile" ? "📱" : v.device === "Tablet" ? "📋" : "💻";
-        const shortId = escapeHTML(v.id ? v.id.substring(0, 8) : "?");
+        const shortId = escapeHTML(v.id || "?");
         
-        let locParts = [];
-        if (v.city) locParts.push(v.city);
-        if (v.country) locParts.push(v.country);
+        let dateStr = "";
+        if (v._isPreFormatted) {
+            dateStr = v.ts;
+        } else {
+            const k = v.ts ? toKyiv(v.ts) : null;
+            dateStr = k ? `${k.dateStr} ${k.timeStr}` : "?";
+        }
         
-        const loc = escapeHTML(locParts.length > 0 ? locParts.join(", ") : "Unknown location");
-        const tz = escapeHTML(v.clientTimezone || v.cfTimezone || "unknown tz");
-        const lang = v.lang && v.lang !== "unknown" ? ` | ${escapeHTML(v.lang)}` : "";
-        const screen = v.screen && v.screen !== "unknown" ? ` | ${escapeHTML(v.screen)}` : "";
+        let locLine = "";
+        if (v._isPreFormatted) {
+            locLine = v.location ? escapeHTML(v.location) : "Unknown location";
+        } else {
+            let locParts = [];
+            if (v.city) locParts.push(v.city);
+            if (v.country) locParts.push(v.country);
+            locLine = escapeHTML(locParts.length > 0 ? locParts.join(", ") : "Unknown location");
+        }
         
-        recentLines += `${deviceEmoji} <code>${shortId}</code> — ${dateStr}\n📍 <i>${loc}</i> (${tz}${screen}${lang})\n\n`;
+        const extraInfo = v._isPreFormatted ? "" : ` (${escapeHTML(v.clientTimezone || v.cfTimezone || "unknown tz")})`;
+        
+        recentLines += `${deviceEmoji} <code>${shortId}</code> — ${dateStr}\n📍 <i>${locLine}</i>${extraInfo}\n\n`;
     });
 
     const msg = [
